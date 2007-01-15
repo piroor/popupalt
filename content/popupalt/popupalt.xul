@@ -1,0 +1,284 @@
+<?xml version="1.0"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is the Popup ALT Attribute.
+   -
+   - The Initial Developer of the Original Code is SHIMODA Hiroshi.
+   - Portions created by the Initial Developer are Copyright (C) 2002-2005
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the LGPL or the GPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<?xml-stylesheet href="chrome://popupalt/content/tooltip.css" type="text/css"?>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript" src="chrome://global/content/XPCNativeWrapper.js"/>
+<script type="application/x-javascript" src="chrome://popupalt/content/pXPCNativeWrapper.js"/>
+
+<script type="application/x-javascript"><![CDATA[
+
+// Popup ALT attributes of IMG (or other) elements
+var initPopupALTDone = false;
+function initPopupALT() {
+	if (initPopupALTDone) return;
+
+	initPopupALTDone = true;
+
+	var originalFillInHTMLTooltip;
+
+	var pref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch(null);
+	var nsISupportsString = ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString ;
+
+
+	var findParentNodeByAttr = function(aNode, aAttr, aValue) {
+		if (!aNode) return null;
+
+		var nodeWrapper = new XPCNativeWrapper(aNode,
+				'parentNode',
+				'ownerDocument',
+				'nodeType'
+			);
+		if (!nodeWrapper.ownerDocument ||
+			nodeWrapper.ownerDocument == document ||
+			nodeWrapper.parentNode == (new XPCNativeWrapper(nodeWrapper.ownerDocument, 'documentElement')).documentElement)
+			return null;
+
+		if (
+			nodeWrapper.nodeType == Node.ELEMENT_NODE &&
+			(nodeWrapper = new XPCNativeWrapper(aNode,
+					'hasAttribute()',
+					'getAttribute()',
+					'parentNode'
+				)) &&
+			nodeWrapper.hasAttribute(aAttr) &&
+			(aValue == '*' || nodeWrapper.getAttribute(aAttr) == aValue)
+			)
+			return aNode;
+
+		return findParentNodeByAttr(nodeWrapper.parentNode, aAttr, aValue);
+	}
+
+	var findParentNodesByAttr = function(aNode, aAttr, aValue) {
+		if (!aNode) return [];
+
+		var nodeWrapper = new XPCNativeWrapper(aNode,
+				'parentNode',
+				'ownerDocument',
+				'nodeType'
+			);
+		if (!nodeWrapper.ownerDocument ||
+			nodeWrapper.ownerDocument == document ||
+			nodeWrapper.parentNode == (new XPCNativeWrapper(nodeWrapper.ownerDocument, 'documentElement')).documentElement)
+			return [];
+
+		var ret = [];
+		if (
+			nodeWrapper.nodeType == Node.ELEMENT_NODE &&
+			(nodeWrapper = new XPCNativeWrapper(aNode,
+					'hasAttribute()',
+					'getAttribute()',
+					'parentNode'
+				)) &&
+			nodeWrapper.hasAttribute(aAttr) &&
+			(aValue == '*' || nodeWrapper.getAttribute(aAttr) == aValue)
+			)
+			ret.push(aNode);
+
+		return ret.concat(findParentNodesByAttr(nodeWrapper.parentNode, aAttr, aValue));
+	}
+
+	var getImageWrapper = function(aNode) {
+		return new XPCNativeWrapper(aNode,
+				'alt',
+				'title'
+			);
+	};
+
+
+	var newFillInHTMLTooltip = function(elem)
+	{
+		try {
+			// "replaceMe" is for NS6.2.3
+			var tooltipNode = document.getElementById('aHTMLTooltip') || document.getElementById('replaceMe');
+
+			var tooltiptext;
+
+			if (elem) {
+				var target = elem;
+				while (
+					target &&
+					(
+						Components.lookupMethod(target, 'nodeType').call(target) != Node.ELEMENT_NODE ||
+						!Components.lookupMethod(target, 'attributes').call(target).length
+					)
+					)
+					target = Components.lookupMethod(target, 'parentNode').call(target);
+
+				if (target) {
+
+					var attrlist = null;
+					try {
+						attrlist = pref.getBoolPref('browser.chrome.tooltips.attrlist.enabled') ? pref.getComplexValue('browser.chrome.tooltips.attrlist', nsISupportsString).data : null ;
+					}
+					catch(ex) {
+	//					dump(ex);
+					}
+
+					if (attrlist) {
+						var i, j;
+
+						attrlist = attrlist.split('|');
+						var recursive ;
+						try {
+							recursive = pref.getBoolPref('browser.chrome.tooltips.attrlist.recursively');
+						}
+						catch(e) {
+						}
+						var foundList = {};
+						var nodes;
+
+						for (i in attrlist) {
+							if (!attrlist[i]) continue;
+
+							nodes = findParentNodesByAttr(target, attrlist[i], '*');
+							if (!nodes.length) continue;
+
+							var popupNodeWrapper;
+							for (j in nodes) {
+								if (!nodes[j]) continue;
+
+								popupNodeWrapper = new XPCNativeWrapper(nodes[j],
+										'getAttribute()',
+										'nodeName'
+									);
+								if (!popupNodeWrapper.getAttribute(attrlist[i]))
+									continue;
+
+								if (!(popupNodeWrapper.nodeName in foundList))
+									foundList[popupNodeWrapper.nodeName] = {
+										_node : nodes[j]
+									};
+
+								foundList[popupNodeWrapper.nodeName][attrlist[i]] = popupNodeWrapper.getAttribute(attrlist[i]);
+
+								if (!recursive) break;
+							}
+						}
+
+						var leaf;
+						var list = [];
+						for (i in foundList) {
+							leaf = ['< '+i+' >'];
+							for (j in foundList[i])
+								if (j != '_node')
+									leaf.push('  '+j+' : '+foundList[i][j]);
+
+							list.push({
+								node : foundList[i]._node,
+								text : leaf.join('\n')
+							});
+						}
+						tooltiptext = [];
+						if (list.length) {
+							list.sort(function(aA, aB) {
+								return ((new XPCNativeWrapper(aA.node, 'compareDocumentPosition()')).compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
+							});
+
+							for (i in list)
+								tooltiptext.push(list[i].text);
+						}
+						tooltiptext = tooltiptext.length ? tooltiptext.join('\n') : null ;
+
+						delete foundList;
+					}
+					else if (
+						Components.lookupMethod(Components.lookupMethod(target, 'ownerDocument').call(target), 'contentType').call(target).indexOf('image') != 0 &&
+						Components.lookupMethod(target, 'localName').call(target).toLowerCase() == 'img' &&
+						(imgWrapper = getImageWrapper(target)) &&
+						imgWrapper.alt &&
+						!imgWrapper.title
+						) {
+						tooltiptext = [];
+						if (!findParentNodeByAttr(target, 'title', '*'))
+							tooltiptext.push(String(imgWrapper.alt));
+
+						tooltiptext = tooltiptext.length ? tooltiptext.join('\n').replace(/\r\n/g, '\n') : null ;
+					}
+				}
+
+				if (tooltiptext) {
+					// hack for Google Toolbar
+					tooltipNode.isGoogleTooltip = false;
+
+					tooltipNode.removeAttribute('label');
+					tooltipNode.setAttribute('label', tooltiptext);
+					return true;
+				}
+			}
+		}
+		catch(e) {
+		}
+
+		return originalFillInHTMLTooltip(elem);
+	};
+
+
+	var onPopupHiding = function(aEvent)
+	{
+		aEvent.target.clearContent();
+	};
+
+
+
+	if ('GTB_Tooltip' in window) { // hack for Google Toolbar
+		originalFillInHTMLTooltip = function(aElement) {
+			return GTB_GoogleToolbarOverlay.tooltip.__popupalt__maybeShowTooltip(aElement);
+		}
+		GTB_Tooltip.prototype.__popupalt__maybeShowTooltip = GTB_Tooltip.prototype.maybeShowTooltip;
+		GTB_Tooltip.prototype.maybeShowTooltip = newFillInHTMLTooltip;
+	}
+	else {
+		originalFillInHTMLTooltip = window.FillInHTMLTooltip;
+		window.FillInHTMLTooltip  = newFillInHTMLTooltip;
+	}
+
+	var tooltipNode = document.getElementById('aHTMLTooltip') || document.getElementById('replaceMe');
+	tooltipNode.clearContent();
+	tooltipNode.addEventListener('popuphiding', onPopupHiding, true);
+
+
+}
+
+window.addEventListener('load', initPopupALT, false);
+window.addEventListener('load', initPopupALT, false);
+
+]]></script>
+
+</overlay>
