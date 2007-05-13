@@ -41,6 +41,8 @@
 		<em:file>
 			<Description about="urn:mozilla:extension:file:popupalt.jar">
 				<em:package>content/popupalt/</em:package>
+				<em:locale>locale/en-US/popupalt/</em:locale>
+				<em:locale>locale/ja-JP/popupalt/</em:locale>
 			</Description>
 		</em:file>
 	</Description>
