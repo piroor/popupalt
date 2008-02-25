@@ -22,12 +22,14 @@
     <em:localized>
       <RDF:Description em:locale="en-US"
                        em:name="Popup ALT Attribute"
-                       em:description="Popups alternate texts of images or others like NetscapeCommunicator(Navigator) 4.x, and show long descriptions in the multi-row tooltip."/>
+                       em:description="Popups alternate texts of images or others like NetscapeCommunicator(Navigator) 4.x, and show long descriptions in the multi-row tooltip."
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_popupalt.html.en"/>
     </em:localized>
     <em:localized>
       <RDF:Description em:locale="ja-JP"
                        em:name="Popup ALT Attribute"
-                       em:description="画像の代替テキストをNetscapeCommunicator 4.xのようにポップアップ表示したり、長い説明文を複数行で表示したりできるようにします。"/>
+                       em:description="画像の代替テキストをNetscapeCommunicator 4.xのようにポップアップ表示したり、長い説明文を複数行で表示したりできるようにします。"
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_popupalt.html"/>
     </em:localized>
 
 
