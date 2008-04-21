@@ -14,7 +14,7 @@
  * The Original Code is the Popup ALT Attribute.
  *
  * The Initial Developer of the Original Code is SHIMODA Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2002-2005
+ * Portions created by the Initial Developer are Copyright (C) 2002-2008
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -36,17 +36,17 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 
-tooltip#aHTMLTooltip
+:root[popupalt-multiline-enabled="true"] tooltip#aHTMLTooltip
 {
 	-moz-binding: url("chrome://popupalt/content/tooltip.xml#tooltip") !important;
 }
 
-tooltip#aHTMLTooltip .tooltip-label[multiline="true"][value]
+:root[popupalt-multiline-enabled="true"] tooltip#aHTMLTooltip .tooltip-label[multiline="true"][value]
 {
 	visibility: hidden !important;
 }
 
-tooltip#aHTMLTooltip .tooltip-label[multiline="true"]
+:root[popupalt-multiline-enabled="true"] tooltip#aHTMLTooltip .tooltip-label[multiline="true"]
 {
 	max-width: none !important;
 	max-height: none !important;

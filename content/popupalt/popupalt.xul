@@ -16,7 +16,7 @@
    - The Original Code is the Popup ALT Attribute.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2002-2005
+   - Portions created by the Initial Developer are Copyright (C) 2002-2008
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -55,6 +55,22 @@ function initPopupALT() {
 
 	var pref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch(null);
 	var nsISupportsString = ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString ;
+
+	try {
+		const kMULTILINE = 'popupalt-multiline-enabled';
+
+		const XULAppInfo = Components.classes['@mozilla.org/xre/app-info;1']
+				.getService(Components.interfaces.nsIXULAppInfo);
+		var version = XULAppInfo.platformVersion.split('.');
+		if (parseInt(version[0]) >= 2 || parseInt(version[1]) >= 9) {
+			document.documentElement.removeAttribute(kMULTILINE);
+		}
+		else {
+			document.documentElement.setAttribute(kMULTILINE, true);
+		}
+	}
+	catch(e) {
+	}
 
 
 	var findParentNodeByAttr = function(aNode, aAttr, aValue) {

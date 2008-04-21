@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{61FD08D8-A2CB-46c0-B36D-3F531AC53C12}"
                    em:name="Popup ALT Attribute"
-                   em:version="1.3.2005092701"
+                   em:version="1.3.2008042101"
                    em:creator="SHIMODA Hiroshi"
                    em:description="Popups alternate texts of images or others like NetscapeCommunicator(Navigator) 4.x, and show long descriptions in the multi-row tooltip."
                    em:homepageURL="http://piro.sakura.ne.jp/xul/_popupalt.html.en"
@@ -37,7 +37,7 @@
       <!-- Firefox -->
       <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                        em:minVersion="1.0"
-                       em:maxVersion="2.0.0.*" />
+                       em:maxVersion="3.0pre" />
       <!-- Mozilla Suite -->
       <RDF:Description em:id="{86c18b42-e466-45a9-ae7a-9b95ba6f5640}"
                        em:minVersion="1.0"
