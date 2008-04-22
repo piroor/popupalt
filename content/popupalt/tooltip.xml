@@ -116,10 +116,6 @@
 
 		<handler event="popuphiding"><![CDATA[
 			this.clear();
-			window.setTimeout(function(aSelf) {
-				aSelf.hidePopup();
-				aSelf.clear();
-			}, 0, this);
 		]]></handler>
 
 	</handlers>
