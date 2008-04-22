@@ -41,6 +41,11 @@
 	xmlns:xbl="http://www.mozilla.org/xbl">
 
 <binding id="tooltip" extends="chrome://global/content/bindings/popup.xml#tooltip">
+	<content>
+		<xul:label class="tooltip-label"
+			xbl:inherits="xbl:text=label"
+			flex="1"/>
+	</content>
 	<implementation>
 		<field name="mLabel">
 			null
@@ -50,65 +55,37 @@
 			this.mLabel = document.getAnonymousNodes(this)[0];
 		]]></constructor>
 
-		<method name="clearContent">
+		<method name="clear">
 			<body><![CDATA[
 				var label = this.mLabel;
 				if (!label) return;
-
-				var range = document.createRange();
-				range.selectNodeContents(label);
-				range.deleteContents();
-				range.selectNodeContents(this);
-				range.deleteContents();
-				range.detach();
 
 				label.removeAttribute('multiline');
 				label.removeAttribute('style');
 				label.removeAttribute('width');
 				label.removeAttribute('height');
-				label.removeAttribute('value');
 
-				this.removeAttribute('label');
 				this.removeAttribute('style');
 				this.removeAttribute('width');
 				this.removeAttribute('height');
-//				this.sizeTo(this.boxObject.width, this.boxObject.height);
+
+				this.removeAttribute('label');
 			]]></body>
 		</method>
 	</implementation>
 
 	<handlers>
-		<handler event="DOMAttrModified"><![CDATA[
-			if (event.attrName != 'label') return;
-
+		<handler event="popupshowing"><![CDATA[
 			var label = this.mLabel;
-			var range = document.createRange();
-			range.selectNodeContents(label);
-			range.deleteContents();
-			range.detach();
-
-
 			label.setAttribute('multiline', true);
 			label.removeAttribute('crop');
-
-			var newText = event.newValue;
-			var newNode = document.createTextNode(newText);
-
-			label.appendChild(newNode);
-
-			label.removeAttribute('value');
 			label.removeAttribute('style');
-
 			this.removeAttribute('style');
 			this.removeAttribute('width');
 			this.removeAttribute('height');
 			this.sizeTo(this.boxObject.width, this.boxObject.height);
 
-			if (!newText) return;
-
-
 			var tooltip = this;
-
 			var height = parseInt(window.getComputedStyle(label, '').getPropertyValue('height'));
 			if (height) {
 				label.setAttribute(
@@ -122,8 +99,6 @@
 			}
 			else {
 				window.setTimeout(function() {
-					label.removeAttribute('value');
-
 					var height = parseInt(window.getComputedStyle(label, '').getPropertyValue('height'));
 					if (height) {
 						label.setAttribute(
@@ -137,6 +112,14 @@
 					}
 				}, 0);
 			}
+		]]></handler>
+
+		<handler event="popuphiding"><![CDATA[
+			this.clear();
+			window.setTimeout(function(aSelf) {
+				aSelf.hidePopup();
+				aSelf.clear();
+			}, 0, this);
 		]]></handler>
 
 	</handlers>
