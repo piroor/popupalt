@@ -37,7 +37,7 @@
       <!-- Firefox -->
       <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                        em:minVersion="1.0"
-                       em:maxVersion="3.0pre" />
+                       em:maxVersion="3.0.*" />
       <!-- Mozilla Suite -->
       <RDF:Description em:id="{86c18b42-e466-45a9-ae7a-9b95ba6f5640}"
                        em:minVersion="1.0"
