@@ -44,7 +44,7 @@
 	<content>
 		<xul:label class="tooltip-label"
 			xbl:inherits="xbl:text=label"
-			flex="1"/>
+			flex="1" style="width:200px;height:100px;"/>
 	</content>
 	<implementation>
 		<field name="mLabel">
@@ -53,10 +53,16 @@
 
 		<constructor><![CDATA[
 			this.mLabel = document.getAnonymousNodes(this)[0];
+			this.mPopup = document.createElement('menupopup');
+			this.mPopup.setAttribute('class', 'popupalt-dummy-popup');
+			document.documentElement.appendChild(this.mPopup);
 		]]></constructor>
 
 		<method name="clear">
 			<body><![CDATA[
+				if (this.clearing) return;
+				this.clearing = true;
+
 				var label = this.mLabel;
 				if (!label) return;
 
@@ -68,8 +74,23 @@
 				this.removeAttribute('style');
 				this.removeAttribute('width');
 				this.removeAttribute('height');
-
 				this.removeAttribute('label');
+
+				/*
+					In some environments, tooltip which includes text nodes as
+					its children isn't shown again until any another popup is
+					shown. So, we have to show/hide a useless popup secretly.
+				*/
+				this.mPopup.showPopup(
+					document.documentElement,
+					-5000,
+					-5000,
+					'popup'
+				);
+				window.setTimeout(function(aSelf) {
+					aSelf.mPopup.hidePopup();
+					aSelf.clearing = false;
+				}, 0, this);
 			]]></body>
 		</method>
 	</implementation>

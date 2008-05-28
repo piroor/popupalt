@@ -1,4 +1,4 @@
-var version     = '1.3.2008042201',
+var version     = '1.3.2008052801',
 	displayName = 'Popup ALT Attribute',
 	appName     = 'popupalt',
 	author      = 'SHIMODA Hiroshi',

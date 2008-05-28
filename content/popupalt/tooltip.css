@@ -52,3 +52,13 @@
 	max-height: none !important;
 	white-space: -moz-pre-wrap !important;
 }
+
+
+.popupalt-dummy-popup {
+	-moz-appearance: none !important;
+	border: 0 none !important;
+	outline: 0 none !important;
+	width: 0 !important;
+	height: 0 !important;
+	background: transparent !important;
+}

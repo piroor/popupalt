@@ -262,32 +262,23 @@ function initPopupALT() {
 		catch(e) {
 		}
 
-		return originalFillInHTMLTooltip(elem);
+		return window.originalFillInHTMLTooltip(elem);
 	};
 
-
 	if ('GTB_Tooltip' in window) { // hack for Google Toolbar
-		originalFillInHTMLTooltip = function(aElement) {
+		window.originalFillInHTMLTooltip = function(aElement) {
 			return GTB_GoogleToolbarOverlay.tooltip.__popupalt__maybeShowTooltip(aElement);
 		}
 		GTB_Tooltip.prototype.__popupalt__maybeShowTooltip = GTB_Tooltip.prototype.maybeShowTooltip;
 		GTB_Tooltip.prototype.maybeShowTooltip = newFillInHTMLTooltip;
 	}
 	else {
-		originalFillInHTMLTooltip = window.FillInHTMLTooltip;
+		window.originalFillInHTMLTooltip = window.FillInHTMLTooltip;
 		window.FillInHTMLTooltip  = newFillInHTMLTooltip;
 	}
 
 	var tooltipNode = document.getElementById('aHTMLTooltip') || document.getElementById('replaceMe');
-	if ('clearContent' in tooltipNode) {
-		tooltipNode.clearContent();
-		var onPopupHiding = function(aEvent)
-		{
-			aEvent.target.clearContent();
-		};
-		tooltipNode.addEventListener('popuphiding', onPopupHiding, true);
-	}
-
+	if ('clear' in tooltipNode) tooltipNode.clear();
 }
 
 window.addEventListener('load', initPopupALT, false);
