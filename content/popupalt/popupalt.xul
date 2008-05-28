@@ -266,13 +266,6 @@ function initPopupALT() {
 	};
 
 
-	var onPopupHiding = function(aEvent)
-	{
-		aEvent.target.clearContent();
-	};
-
-
-
 	if ('GTB_Tooltip' in window) { // hack for Google Toolbar
 		originalFillInHTMLTooltip = function(aElement) {
 			return GTB_GoogleToolbarOverlay.tooltip.__popupalt__maybeShowTooltip(aElement);
@@ -286,9 +279,14 @@ function initPopupALT() {
 	}
 
 	var tooltipNode = document.getElementById('aHTMLTooltip') || document.getElementById('replaceMe');
-	tooltipNode.clearContent();
-	tooltipNode.addEventListener('popuphiding', onPopupHiding, true);
-
+	if ('clearContent' in tooltipNode) {
+		tooltipNode.clearContent();
+		var onPopupHiding = function(aEvent)
+		{
+			aEvent.target.clearContent();
+		};
+		tooltipNode.addEventListener('popuphiding', onPopupHiding, true);
+	}
 
 }
 
