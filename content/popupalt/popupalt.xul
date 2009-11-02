@@ -122,13 +122,9 @@ function initPopupALT() {
 
 				if (target) {
 
-					var attrlist = null;
-					try {
-						attrlist = pref.getBoolPref('browser.chrome.tooltips.attrlist.enabled') ? pref.getComplexValue('browser.chrome.tooltips.attrlist', nsISupportsString).data : null ;
-					}
-					catch(ex) {
-	//					dump(ex);
-					}
+					var attrlist = pref.getBoolPref('browser.chrome.tooltips.attrlist.enabled') ?
+									pref.getComplexValue('browser.chrome.tooltips.attrlist', nsISupportsString).data :
+									null ;
 
 					if (attrlist) {
 						var i, j;
