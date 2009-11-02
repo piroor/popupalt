@@ -70,41 +70,34 @@ function initPopupALT() {
 	}
 
 
-	var findParentNodeByAttr = function(aNode, aAttr, aValue) {
+	var findParentNodeByAttr = function(aNode, aAttr) {
 		if (!aNode) return null;
 
-		if (!aNode.ownerDocument ||
-			aNode.ownerDocument == document ||
-			aNode.parentNode == aNode.ownerDocument.documentElement)
-			return null;
-
-		if (
-			aNode.nodeType == Node.ELEMENT_NODE &&
-			aNode.hasAttribute(aAttr) &&
-			(aValue == '*' || aNode.getAttribute(aAttr) == aValue)
-			)
-			return aNode;
-
-		return findParentNodeByAttr(aNode.parentNode, aAttr, aValue);
+		return aNode.ownerDocument.evaluate(
+				'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")][1]',
+				aNode,
+				null,
+				XPathResult.FIRST_ORDERED_NODE_TYPE,
+				null
+			).singleNodeValue;
 	}
 
-	var findParentNodesByAttr = function(aNode, aAttr, aValue) {
+	var findParentNodesByAttr = function(aNode, aAttr) {
 		if (!aNode) return [];
 
-		if (!aNode.ownerDocument ||
-			aNode.ownerDocument == document ||
-			aNode.parentNode == aNode.ownerDocument.documentElement)
-			return [];
-
-		var ret = [];
-		if (
-			aNode.nodeType == Node.ELEMENT_NODE &&
-			aNode.hasAttribute(aAttr) &&
-			(aValue == '*' || aNode.getAttribute(aAttr) == aValue)
-			)
-			ret.push(aNode);
-
-		return ret.concat(findParentNodesByAttr(aNode.parentNode, aAttr, aValue));
+		var nodes = [];
+		var result = aNode.ownerDocument.evaluate(
+				'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")]',
+				aNode,
+				null,
+				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
+		for (var i = 0, maxi = result.snapshotLength; i < maxi; i++)
+		{
+			nodes.push(result.snapshotItem(i));
+		}
+		return nodes;
 	}
 
 
@@ -153,7 +146,7 @@ function initPopupALT() {
 						for (i in attrlist) {
 							if (!attrlist[i]) continue;
 
-							nodes = findParentNodesByAttr(target, attrlist[i], '*');
+							nodes = findParentNodesByAttr(target, attrlist[i]);
 							if (!nodes.length) continue;
 
 							for (j in nodes) {
@@ -206,7 +199,7 @@ function initPopupALT() {
 						!target.title
 						) {
 						tooltiptext = [];
-						if (!findParentNodeByAttr(target, 'title', '*'))
+						if (!findParentNodeByAttr(target, 'title'))
 							tooltiptext.push(String(target.alt));
 
 						tooltiptext = tooltiptext.length ? tooltiptext.join('\n').replace(/\r\n/g, '\n') : null ;
