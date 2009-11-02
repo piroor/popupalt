@@ -16,7 +16,7 @@
    - The Original Code is the Popup ALT Attribute.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2002-2008
+   - Portions created by the Initial Developer are Copyright (C) 2002-2009
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -39,9 +39,6 @@
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<script type="application/x-javascript" src="chrome://global/content/XPCNativeWrapper.js"/>
-<script type="application/x-javascript" src="chrome://popupalt/content/pXPCNativeWrapper.js"/>
-
 <script type="application/x-javascript"><![CDATA[
 
 // Popup ALT attributes of IMG (or other) elements
@@ -54,7 +51,7 @@ function initPopupALT() {
 	var originalFillInHTMLTooltip;
 
 	var pref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch(null);
-	var nsISupportsString = ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString ;
+	var nsISupportsString = Components.interfaces.nsISupportsString;
 
 	try {
 		const kMULTILINE = 'popupalt-multiline-enabled';
@@ -76,66 +73,39 @@ function initPopupALT() {
 	var findParentNodeByAttr = function(aNode, aAttr, aValue) {
 		if (!aNode) return null;
 
-		var nodeWrapper = new XPCNativeWrapper(aNode,
-				'parentNode',
-				'ownerDocument',
-				'nodeType'
-			);
-		if (!nodeWrapper.ownerDocument ||
-			nodeWrapper.ownerDocument == document ||
-			nodeWrapper.parentNode == (new XPCNativeWrapper(nodeWrapper.ownerDocument, 'documentElement')).documentElement)
+		if (!aNode.ownerDocument ||
+			aNode.ownerDocument == document ||
+			aNode.parentNode == aNode.ownerDocument.documentElement)
 			return null;
 
 		if (
-			nodeWrapper.nodeType == Node.ELEMENT_NODE &&
-			(nodeWrapper = new XPCNativeWrapper(aNode,
-					'hasAttribute()',
-					'getAttribute()',
-					'parentNode'
-				)) &&
-			nodeWrapper.hasAttribute(aAttr) &&
-			(aValue == '*' || nodeWrapper.getAttribute(aAttr) == aValue)
+			aNode.nodeType == Node.ELEMENT_NODE &&
+			aNode.hasAttribute(aAttr) &&
+			(aValue == '*' || aNode.getAttribute(aAttr) == aValue)
 			)
 			return aNode;
 
-		return findParentNodeByAttr(nodeWrapper.parentNode, aAttr, aValue);
+		return findParentNodeByAttr(aNode.parentNode, aAttr, aValue);
 	}
 
 	var findParentNodesByAttr = function(aNode, aAttr, aValue) {
 		if (!aNode) return [];
 
-		var nodeWrapper = new XPCNativeWrapper(aNode,
-				'parentNode',
-				'ownerDocument',
-				'nodeType'
-			);
-		if (!nodeWrapper.ownerDocument ||
-			nodeWrapper.ownerDocument == document ||
-			nodeWrapper.parentNode == (new XPCNativeWrapper(nodeWrapper.ownerDocument, 'documentElement')).documentElement)
+		if (!aNode.ownerDocument ||
+			aNode.ownerDocument == document ||
+			aNode.parentNode == aNode.ownerDocument.documentElement)
 			return [];
 
 		var ret = [];
 		if (
-			nodeWrapper.nodeType == Node.ELEMENT_NODE &&
-			(nodeWrapper = new XPCNativeWrapper(aNode,
-					'hasAttribute()',
-					'getAttribute()',
-					'parentNode'
-				)) &&
-			nodeWrapper.hasAttribute(aAttr) &&
-			(aValue == '*' || nodeWrapper.getAttribute(aAttr) == aValue)
+			aNode.nodeType == Node.ELEMENT_NODE &&
+			aNode.hasAttribute(aAttr) &&
+			(aValue == '*' || aNode.getAttribute(aAttr) == aValue)
 			)
 			ret.push(aNode);
 
-		return ret.concat(findParentNodesByAttr(nodeWrapper.parentNode, aAttr, aValue));
+		return ret.concat(findParentNodesByAttr(aNode.parentNode, aAttr, aValue));
 	}
-
-	var getImageWrapper = function(aNode) {
-		return new XPCNativeWrapper(aNode,
-				'alt',
-				'title'
-			);
-	};
 
 
 	var newFillInHTMLTooltip = function(elem)
@@ -151,11 +121,11 @@ function initPopupALT() {
 				while (
 					target &&
 					(
-						Components.lookupMethod(target, 'nodeType').call(target) != Node.ELEMENT_NODE ||
-						!Components.lookupMethod(target, 'attributes').call(target).length
+						target.nodeType != Node.ELEMENT_NODE ||
+						!target.attributes.length
 					)
 					)
-					target = Components.lookupMethod(target, 'parentNode').call(target);
+					target = target.parentNode;
 
 				if (target) {
 
@@ -186,23 +156,18 @@ function initPopupALT() {
 							nodes = findParentNodesByAttr(target, attrlist[i], '*');
 							if (!nodes.length) continue;
 
-							var popupNodeWrapper;
 							for (j in nodes) {
 								if (!nodes[j]) continue;
 
-								popupNodeWrapper = new XPCNativeWrapper(nodes[j],
-										'getAttribute()',
-										'nodeName'
-									);
-								if (!popupNodeWrapper.getAttribute(attrlist[i]))
+								if (!nodes[j].getAttribute(attrlist[i]))
 									continue;
 
-								if (!(popupNodeWrapper.nodeName in foundList))
-									foundList[popupNodeWrapper.nodeName] = {
+								if (!(nodes[j].nodeName in foundList))
+									foundList[nodes[j].nodeName] = {
 										_node : nodes[j]
 									};
 
-								foundList[popupNodeWrapper.nodeName][attrlist[i]] = popupNodeWrapper.getAttribute(attrlist[i]);
+								foundList[nodes[j].nodeName][attrlist[i]] = nodes[j].getAttribute(attrlist[i]);
 
 								if (!recursive) break;
 							}
@@ -224,7 +189,7 @@ function initPopupALT() {
 						tooltiptext = [];
 						if (list.length) {
 							list.sort(function(aA, aB) {
-								return ((new XPCNativeWrapper(aA.node, 'compareDocumentPosition()')).compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
+								return aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
 							});
 
 							for (i in list)
@@ -235,15 +200,14 @@ function initPopupALT() {
 						delete foundList;
 					}
 					else if (
-						Components.lookupMethod(Components.lookupMethod(target, 'ownerDocument').call(target), 'contentType').call(target).indexOf('image') != 0 &&
-						Components.lookupMethod(target, 'localName').call(target).toLowerCase() == 'img' &&
-						(imgWrapper = getImageWrapper(target)) &&
-						imgWrapper.alt &&
-						!imgWrapper.title
+						target.ownerDocument.contentType.indexOf('image') != 0 &&
+						target.localName.toLowerCase() == 'img' &&
+						target.alt &&
+						!target.title
 						) {
 						tooltiptext = [];
 						if (!findParentNodeByAttr(target, 'title', '*'))
-							tooltiptext.push(String(imgWrapper.alt));
+							tooltiptext.push(String(target.alt));
 
 						tooltiptext = tooltiptext.length ? tooltiptext.join('\n').replace(/\r\n/g, '\n') : null ;
 					}

@@ -36,23 +36,8 @@
     <em:targetApplication>
       <!-- Firefox -->
       <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
-                       em:minVersion="1.0"
-                       em:maxVersion="3.1b3pre" />
-      <!-- Mozilla Suite -->
-      <RDF:Description em:id="{86c18b42-e466-45a9-ae7a-9b95ba6f5640}"
-                       em:minVersion="1.0"
-                       em:maxVersion="1.8.*" />
-      <!-- Netscape Browser 8 -->
-      <RDF:Description em:id="{86c18b42-e466-45a9-ae7a-9b95ba6f5640}"
-                       em:minVersion="8.0"
-                       em:maxVersion="8.*" />
+                       em:minVersion="3.0"
+                       em:maxVersion="3.7a1pre" />
     </em:targetApplication>
-	<em:file>
-		<RDF:Description RDF:about="urn:mozilla:extension:file:popupalt.jar">
-			<em:package>content/popupalt/</em:package>
-			<em:locale>locale/en-US/popupalt/</em:locale>
-			<em:locale>locale/ja-JP/popupalt/</em:locale>
-		</RDF:Description>
-	</em:file>
   </RDF:Description>
 </RDF:RDF>

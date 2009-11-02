@@ -1,0 +1,6 @@
+content	popupalt	jar:chrome/popupalt.jar!/content/popupalt/
+
+overlay	chrome://browser/content/browser.xul	chrome://popupalt/content/popupalt.xul
+
+locale	popupalt	en-US	jar:chrome/popupalt.jar!/locale/en-US/popupalt/
+locale	popupalt	ja	jar:chrome/popupalt.jar!/locale/ja/popupalt/
