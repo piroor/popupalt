@@ -189,7 +189,7 @@ function initPopupALT() {
 						tooltiptext = [];
 						if (list.length) {
 							list.sort(function(aA, aB) {
-								return aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
+								return (aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
 							});
 
 							for (i in list)
