@@ -14,7 +14,7 @@
  * The Original Code is the Popup ALT Attribute.
  *
  * The Initial Developer of the Original Code is SHIMODA Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2002-2008
+ * Portions created by the Initial Developer are Copyright (C) 2002-2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -33,32 +33,36 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+var config = require('lib/config');
+config.setDefault('browser.chrome.tooltips.attrlist.enabled', false);
+config.setDefault('browser.chrome.tooltips.attrlist', 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit');
+config.setDefault('browser.chrome.tooltips.attrlist.recursively', false);
 
+var popupalt = require('popupalt');
+var WindowManager = require('lib/WindowManager');
 
-:root[popupalt-multiline-enabled="true"] tooltip#aHTMLTooltip
+const TYPE_BROWSER = 'navigator:browser';
+
+function handleWindow(aWindow)
 {
-	-moz-binding: url("chrome://popupalt/content/tooltip.xml#tooltip") !important;
+	var doc = aWindow.document;
+	if (doc.documentElement.getAttribute('windowtype') == TYPE_BROWSER)
+		aWindow.PopupALT = new popupalt.PopupALT(aWindow);
 }
 
-:root[popupalt-multiline-enabled="true"] tooltip#aHTMLTooltip .tooltip-label[multiline="true"][value]
+WindowManager.getWindows(TYPE_BROWSER).forEach(handleWindow);
+WindowManager.addHandler(handleWindow);
+
+function shutdown()
 {
-	visibility: hidden !important;
+	WindowManager.getWindows(TYPE_BROWSER).forEach(function(aWindow) {
+		if (aWindow.PopupALT) {
+			aWindow.PopupALT.destroy();
+			delete aWindow.PopupALT;
+		}
+	});
+	WindowManager = undefined;
+	config = undefined;
+	popupalt = undefined;
 }
 
-:root[popupalt-multiline-enabled="true"] tooltip#aHTMLTooltip .tooltip-label[multiline="true"]
-{
-	max-width: none !important;
-	max-height: none !important;
-	white-space: -moz-pre-wrap !important;
-}
-
-
-.popupalt-dummy-popup {
-	-moz-appearance: none !important;
-	border: 0 none !important;
-	outline: 0 none !important;
-	width: 0 !important;
-	height: 0 !important;
-	background: transparent !important;
-}
