@@ -108,13 +108,14 @@ PopupALT.prototype = {
 		if ('GTB_Tooltip' in window)
 			tooltip.isGoogleTooltip = false;
 
-		tooltiptext = tooltiptext
-						.replace(/[\r\t]/g, ' ')
-						.replace(/\n/g, '');
 		tooltip.removeAttribute('label');
 		tooltip.setAttribute('label', tooltiptext);
 
 		aEvent.stopPropagation();
+	},
+
+	formatTooltipText : function(aString) {
+		return aString.replace(/[\r\t]/g, ' ').replace(/\n/g, '');
 	},
 
 	constructTooltiptextFromImage : function(aTarget) {
@@ -126,13 +127,9 @@ PopupALT.prototype = {
 			)
 			return null;
 
-		var tooltiptext = [];
-		if (!this.findParentNodeByAttr(aTarget, 'title'))
-			tooltiptext.push(String(aTarget.alt));
-
-		tooltiptext = tooltiptext.length ? tooltiptext.join('\n').replace(/\r\n/g, '\n') : null ;
-
-		return tooltiptext;
+		return this.findParentNodeByAttr(aTarget, 'title') ?
+			null :
+			this.formatTooltipText(String(aTarget.alt)) ;
 	},
 
 	constructTooltiptextFromAttributes : function(aTarget) {
@@ -169,7 +166,7 @@ PopupALT.prototype = {
 			let item = foundList[target];
 			for (let attr in item)
 				if (attr != '_node')
-					leaf.push('  '+attr+' : '+item[attr]);
+					leaf.push('  '+attr+' : '+this.formatTooltipText(item[attr]));
 
 			list.push({
 				node : item._node,
@@ -186,9 +183,7 @@ PopupALT.prototype = {
 			for each (let item in list)
 				tooltiptext.push(item.text);
 		}
-		tooltiptext = tooltiptext.length ? tooltiptext.join('\n') : null ;
-
-		return tooltiptext;
+		return tooltiptext.length ? tooltiptext.join('\n') : null ;
 	},
 
 
