@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{61FD08D8-A2CB-46c0-B36D-3F531AC53C12}"
                    em:name="Popup ALT Attribute"
-                   em:version="2.0.2009110201"
+                   em:version="2.0.2011040501"
                    em:creator="SHIMODA Hiroshi"
                    em:description="Popups alternate texts of images or others like NetscapeCommunicator(Navigator) 4.x, and show long descriptions in the multi-row tooltip."
                    em:homepageURL="http://piro.sakura.ne.jp/xul/_popupalt.html.en"
