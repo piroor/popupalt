@@ -1,7 +1,7 @@
 /**
  * @fileOverview Configuration dialog module for restartless addons
  * @author       SHIMODA "Piro" Hiroshi
- * @version      5
+ * @version      8
  *
  * @license
  *   The MIT License, Copyright (c) 2011 SHIMODA "Piro" Hiroshi.
@@ -53,7 +53,7 @@ var config = {
 
 		var source = Cc['@mozilla.org/variant;1']
 						.createInstance(Ci.nsIWritableVariant);
-		source.setFromVariant(current.source);
+		source.setFromVariant([this._builder.toSource(), current.source, aURI]);
 
 		if (aOwner) {
 			let parent = aOwner.top
@@ -71,7 +71,14 @@ var config = {
 				aOwner = null;
 		}
 
-		current.openedWindow = Cc['@mozilla.org/embedcomp/window-watcher;1']
+		var features = 'chrome,titlebar,toolbar,centerscreen' +
+						(Prefs.getBoolPref('browser.preferences.instantApply') ?
+							',dialog=no' :
+						aOwner ?
+							',modal' :
+							''
+						);
+		var window = Cc['@mozilla.org/embedcomp/window-watcher;1']
 							.getService(Ci.nsIWindowWatcher)
 							.openWindow(
 								aOwner || null,
@@ -79,24 +86,11 @@ var config = {
 									current.container
 								),
 								'_blank',
-								'chrome,titlebar,toolbar,centerscreen' +
-								(Prefs.getBoolPref('browser.preferences.instantApply') ?
-									',dialog=no' :
-								aOwner ?
-									',modal' :
-									''
-								),
+								features,
 								source
 							);
-		current.openedWindow.addEventListener('load', function() {
-			current.openedWindow.removeEventListener('load', arguments.callee, false);
-			current.openedWindow._sourceURI = aURI;
-			current.openedWindow.addEventListener('unload', function() {
-				current.openedWindow.removeEventListener('unload', arguments.callee, false);
-				current.openedWindow = null;
-			}, false);
-		}, false);
-		return current.openedWindow;
+		if (features.indexOf('modal') < 0)
+			return window;
 	},
 
 	/**
@@ -111,13 +105,18 @@ var config = {
 	 *   A source of a XUL document for a configuration dialog defined as an
 	 *   E4X object (XML object). Typical headers (<?xml version="1.0"?> and
 	 *   an <?xml-stylesheet?> for the default theme) are automatically added.
+	 *   Note: Any <script/> elements must be written as XHTML script elements.
+	 *   (ex. <script xmlns="http://www.w3.org/1999/xhtml" ...> )
+	 *   If you put XUL <script/>s in your dialog, they won't be evaluated
+	 *   because they are inserted to the document dynamically. Only XHTML
+	 *   script elements are evaluated by dynamic insertion.
 	 */
 	register : function(aURI, aXML)
 	{
 		var root = aXML.copy();
 		delete root.*;
 		var attributes = root.attributes();
-		for each (var attribute in attributes)
+		for each (let attribute in attributes)
 		{
 			delete root['@'+attribute.name()];
 		}
@@ -140,15 +139,19 @@ var config = {
 		XML.setSettings(originalSettings);
 	},
 	_loader : <![CDATA[
-		var d = document;
-		var e = d.documentElement;
-		var r = d.createRange();
-		r.selectNode(e);
-		d.replaceChild(r.createContextualFragment(arguments[0]), e);
-		r.detach();
+		eval('f='+arguments[0][0]);
+		f(document, arguments[0][1], arguments[0][2]);
 	]]>.toString()
-		.replace(/\/\/.*$/gm, '')
 		.replace(/\s\s+/g, ' '),
+	_builder : function(aDocument, aSource, aSourceURI)
+	{
+		var root = aDocument.documentElement;
+		var range = aDocument.createRange();
+		range.selectNode(root);
+		aDocument.replaceChild(range.createContextualFragment(aSource), root);
+		range.detach();
+		aDocument.defaultView._sourceURI = aSourceURI;
+	},
 
 	/**
 	 * Unregisters a registeed dialog for the given URI.
@@ -286,11 +289,12 @@ let (browsers = WindowMediator.getEnumerator('navigator:browser')) {
 	while (browsers.hasMoreElements())
 	{
 		let browser = browsers.getNext().QueryInterface(Ci.nsIDOMWindow);
-		Array.slice(browser.gBrowser.mTabContainer.childNodes)
-			.forEach(function(aTab) {
-			if (aTab.linkedBrowser.currentURI.spec == 'about:addons')
-				config._onLoadManager(aTab.linkedBrowser.contentWindow);
-		});
+		if (browser.gBrowser)
+			Array.slice(browser.gBrowser.mTabContainer.childNodes)
+				.forEach(function(aTab) {
+				if (aTab.linkedBrowser.currentURI.spec == 'about:addons')
+					config._onLoadManager(aTab.linkedBrowser.contentWindow);
+			});
 	}
 }
 let (managers = WindowMediator.getEnumerator('Extension:Manager')) { // Firefox 3.6
