@@ -1,7 +1,7 @@
 /**
  * @fileOverview Loader module for restartless addons
  * @author       SHIMODA "Piro" Hiroshi
- * @version      4
+ * @version      5
  *
  * @license
  *   The MIT License, Copyright (c) 2010-2011 SHIMODA "Piro" Hiroshi.
@@ -15,8 +15,15 @@ var _namespacePrototype = {
 		Ci : Components.interfaces,
 		Cu : Components.utils,
 		Cr : Components.results,
-		Application : Components.classes['@mozilla.org/fuel/application;1']
-						.getService(Components.interfaces.fuelIApplication)
+		Application : (
+			'@mozilla.org/fuel/application;1' in Components.classes ?
+				Components.classes['@mozilla.org/fuel/application;1']
+					.getService(Components.interfaces.fuelIApplication) :
+			'@mozilla.org/steel/application;1' in Components.classes ?
+				Components.classes['@mozilla.org/steel/application;1']
+					.getService(Components.interfaces.steelIApplication) :
+			null
+		)
 	};
 var _namespaces;
 
@@ -297,7 +304,7 @@ function unregisterResource(aName)
 /** Handler for "install" of the bootstrap.js */
 function install(aReason)
 {
-	_callHandler('iustall', aReason);
+	_callHandler('install', aReason);
 }
 
 /** Handler for "uninstall" of the bootstrap.js */
