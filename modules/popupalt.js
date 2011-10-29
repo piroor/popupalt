@@ -97,7 +97,7 @@ PopupALT.prototype = {
 
 		var tooltiptext = this.attrlist ?
 				this.constructTooltiptextFromAttributes(target) :
-				this.constructTooltiptextFromImage(target) ;
+				this.constructTooltiptextForAlt(target) ;
 
 		if (!tooltiptext || !tooltiptext.match(/\S/))
 			return;
@@ -118,10 +118,9 @@ PopupALT.prototype = {
 		return aString.replace(/[\r\t]/g, ' ').replace(/\n/g, '');
 	},
 
-	constructTooltiptextFromImage : function(aTarget) {
+	constructTooltiptextForAlt : function(aTarget) {
 		if (
 			aTarget.ownerDocument.contentType.indexOf('image') == 0 ||
-			aTarget.localName.toLowerCase() != 'img' ||
 			!aTarget.alt ||
 			aTarget.title
 			)
