@@ -223,4 +223,4 @@ step2: NS/MozÇÃçƒãNìÆ
 
 ------------------------------------------------------------------------
 Popup ALT Attributes for NS7 & Moz & Firefox
-Copyright 2002-2005 Piro(SHIMODA Hiroshi)
+Copyright 2002-2005 Piro(YUKI "Piro" Hiroshi)

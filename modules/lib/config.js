@@ -1,10 +1,10 @@
 /**
  * @fileOverview Configuration dialog module for restartless addons
- * @author       SHIMODA "Piro" Hiroshi
+ * @author       YUKI "Piro" Hiroshi
  * @version      8
  *
  * @license
- *   The MIT License, Copyright (c) 2011 SHIMODA "Piro" Hiroshi.
+ *   The MIT License, Copyright (c) 2011 YUKI "Piro" Hiroshi.
  *   http://www.cozmixng.org/repos/piro/restartless-addon/trunk/license.txt
  * @url http://www.cozmixng.org/repos/piro/restartless-addon/trunk/
  */
