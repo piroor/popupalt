@@ -1,15 +1,17 @@
 /**
  * @fileOverview Configuration dialog module for restartless addons
  * @author       YUKI "Piro" Hiroshi
- * @version      8
+ * @version      12
  *
  * @license
- *   The MIT License, Copyright (c) 2011 YUKI "Piro" Hiroshi.
- *   http://www.cozmixng.org/repos/piro/restartless-addon/trunk/license.txt
- * @url http://www.cozmixng.org/repos/piro/restartless-addon/trunk/
+ *   The MIT License, Copyright (c) 2011-2012 YUKI "Piro" Hiroshi.
+ *   https://github.com/piroor/restartless/blob/master/license.txt
+ * @url http://github.com/piroor/restartless
  */
 
 const EXPORTED_SYMBOLS = ['config'];
+
+const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
 'open,register,unregister,setDefault'.split(',').forEach(function(aSymbol) {
 	exports[aSymbol] = function() {
@@ -53,7 +55,7 @@ var config = {
 
 		var source = Cc['@mozilla.org/variant;1']
 						.createInstance(Ci.nsIWritableVariant);
-		source.setFromVariant([this._builder.toSource(), current.source, aURI]);
+		source.setFromVariant([this._builder.toSource(), current.source, aURI, current.script, this]);
 
 		if (aOwner) {
 			let parent = aOwner.top
@@ -101,56 +103,91 @@ var config = {
 	 *   A URI which is the target URI. When the URI is loaded in a browser
 	 *   window, then this system automatically opens a generated XUL window
 	 *   from the source.
-	 * @param {XML} aXML
-	 *   A source of a XUL document for a configuration dialog defined as an
-	 *   E4X object (XML object). Typical headers (<?xml version="1.0"?> and
+	 * @param {Object} aSource
+	 *   A source of a XUL document for a configuration dialog defined as a
+	 *   or something. Typical headers (<?xml version="1.0"?> and
 	 *   an <?xml-stylesheet?> for the default theme) are automatically added.
-	 *   Note: Any <script/> elements must be written as XHTML script elements.
-	 *   (ex. <script xmlns="http://www.w3.org/1999/xhtml" ...> )
-	 *   If you put XUL <script/>s in your dialog, they won't be evaluated
-	 *   because they are inserted to the document dynamically. Only XHTML
-	 *   script elements are evaluated by dynamic insertion.
+	 *   Note: Any <script/> elements are ignored or doesn't work as you expected.
+	 *   You have to put any script as the third argument.
+	 * @param {String} aScript
+	 *   JavaScript codes to be run in the configuration dialog.
 	 */
-	register : function(aURI, aXML)
+	register : function(aURI, aSource, aScript)
 	{
-		var root = aXML.copy();
-		delete root.*;
-		var attributes = root.attributes();
-		for each (let attribute in attributes)
-		{
-			delete root['@'+attribute.name()];
-		}
-		root.script = <script type="application/javascript">{ this._loader }</script>;
+		if (typeof aScript == 'function')
+			aScript = aScript.toSource().replace(/^\(?function\s*\(\)\s*\{|\}\)?$/g, '');
 
 		var header = '<?xml version="1.0"?>\n'+
 					'<!-- ' + aURI + ' -->\n'+
 					'<?xml-stylesheet href="chrome://global/skin/"?>\n';
 
-		var originalSettings = XML.settings();
-		XML.ignoreWhitespace = true;
-		XML.prettyPrinting = false;
+		var container;
+		var source;
+		if (aSource.toXMLString) { // E4X
+			let root = aSource.copy();
+			delete root['*'];
+			let attributes = root.attributes();
+			for each (let attribute in attributes)
+			{
+				delete root['@'+attribute.name()];
+			}
+			root = root.toXMLString()
+					.replace(
+						/<([^ ]+)([^>]+)\/>\s*$/,
+						'<$1$2><script type="application/javascript">' + this._loader + '</script></$1>'
+					);
+
+			let originalSettings = XML.settings();
+			XML.ignoreWhitespace = true;
+			XML.prettyPrinting = false;
+
+			container = header+((new XMLList(root)).toXMLString());
+			source = (new XMLList(aSource.toXMLString())).toXMLString();
+
+			XML.setSettings(originalSettings);
+		}
+		else { // string
+			source = String(aSource);
+			let root = source
+						.replace(/^\s+|\s+$/g, '')
+						.replace(/[\r\n]+/g, ' ')
+						.replace(/>.+<\/[^>]+/, '/');
+			let xmlnses = root.match(/xmlns(:[^=]+)\s*=\s*('[^']*'|"[^"]*")/g);
+			root = root
+					.replace(/\s+[^ =]+\s*=\s*('[^']*'|"[^"]*")/g, '')
+					.replace(/(\/>)$/, ' ' + Array.slice(xmlnses).join(' ') + '$1')
+		}
 
 		this._configs[this._resolveResURI(aURI)] = {
-			container    : header+((new XMLList(root.toXMLString())).toXMLString()),
-			source       : (new XMLList(aXML.toXMLString())).toXMLString(),
+			container    : container,
+			source       : source,
+			script       : aScript || '',
 			openedWindow : null
 		};
-
-		XML.setSettings(originalSettings);
 	},
-	_loader : <![CDATA[
-		eval('f='+arguments[0][0]);
-		f(document, arguments[0][1], arguments[0][2]);
-	]]>.toString()
-		.replace(/\s\s+/g, ' '),
-	_builder : function(aDocument, aSource, aSourceURI)
+	_loader : 'eval(arguments[0][0]+"();"+arguments[0][3]);',
+	_builder : function()
 	{
-		var root = aDocument.documentElement;
-		var range = aDocument.createRange();
+		var args = window.arguments[0];
+		window.config = args[4];
+		var soruce = args[1];
+		var sourceURI = args[2];
+		var root = document.documentElement;
+		var range = document.createRange();
 		range.selectNode(root);
-		aDocument.replaceChild(range.createContextualFragment(aSource), root);
+		var fragment = range.createContextualFragment(soruce);
+		// clear white-space nodes from XUL tree
+		(function(aNode) {
+			Array.slice(aNode.childNodes).forEach(arguments.callee);
+			if (aNode.parentNode &&
+				aNode.parentNode.namespaceURI == XULNS &&
+				aNode.nodeType == Ci.nsIDOMNode.TEXT_NODE &&
+				aNode.nodeValue.replace(/^\s+|\s+$/g, '') == '')
+				aNode.parentNode.removeChild(aNode);
+		})(fragment);
+		document.replaceChild(fragment, root);
 		range.detach();
-		aDocument.defaultView._sourceURI = aSourceURI;
+		window._sourceURI = sourceURI;
 	},
 
 	/**
