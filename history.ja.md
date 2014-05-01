@@ -1,7 +1,7 @@
 # 更新履歴
 
  - master/HEAD
-   * Firefox 29以降に対応
+   * Nightly 32.0a1に対応
  - 2.0.2012122901
    * Nightly 20.0a1に対応
    * Firefox 9およびそれ以前のバージョンへの対応を終了
