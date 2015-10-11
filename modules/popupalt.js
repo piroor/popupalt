@@ -33,7 +33,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const EXPORTED_SYMBOLS = ['PopupALT'];
+var EXPORTED_SYMBOLS = ['PopupALT'];
 
 var prefs = require('lib/prefs').prefs;
 
