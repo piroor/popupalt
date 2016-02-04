@@ -14,7 +14,7 @@
  * The Original Code is the Popup ALT Attribute.
  *
  * The Initial Developer of the Original Code is YUKI "Piro" Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2002-2011
+ * Portions created by the Initial Developer are Copyright (C) 2002-2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): YUKI "Piro" Hiroshi <piro.outsider.reflex@gmail.com>
@@ -35,175 +35,52 @@
 
 var EXPORTED_SYMBOLS = ['PopupALT'];
 
-var prefs = require('lib/prefs').prefs;
-
 function PopupALT(aWindow) {
 	this._window = aWindow;
 	this.init();
 }
 PopupALT.prototype = {
-	findParentNodeByAttr : function(aNode, aAttr) {
-		if (!aNode) return null;
-
-		return aNode.ownerDocument.evaluate(
-				'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")][1]',
-				aNode,
-				null,
-				Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
-				null
-			).singleNodeValue;
-	},
-	findParentNodesByAttr : function(aNode, aAttr) {
-		if (!aNode) return [];
-
-		var nodes = [];
-		var result = aNode.ownerDocument.evaluate(
-				'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")]',
-				aNode,
-				null,
-				Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-				null
-			);
-		for (var i = 0, maxi = result.snapshotLength; i < maxi; i++)
-		{
-			nodes.push(result.snapshotItem(i));
-		}
-		return nodes;
-	},
-
-	get tooltip() {
-		return this._window.document.getElementById('aHTMLTooltip');
-	},
-
-	get attrlist() {
-		return prefs.getPref('browser.chrome.tooltips.attrlist.enabled') ?
-				prefs.getPref('browser.chrome.tooltips.attrlist') : null ;
-	},
-
-
-	onPopupShowing : function(aEvent) {
-		var target = this._window.document.tooltipNode;
-		while (
-			target &&
-			(
-				target.nodeType != Ci.nsIDOMNode.ELEMENT_NODE ||
-				!target.attributes.length
-			)
-			)
-			target = target.parentNode;
-
-		if (!target)
-			return;
-
-		var tooltiptext = this.attrlist ?
-				this.constructTooltiptextFromAttributes(target) :
-				this.constructTooltiptextForAlt(target) ;
-
-		if (!tooltiptext || !tooltiptext.match(/\S/))
-			return;
-
-		var tooltip = this.tooltip;
-
-		// hack for Google Toolbar
-		if ('GTB_Tooltip' in window)
-			tooltip.isGoogleTooltip = false;
-
-		tooltip.removeAttribute('label');
-		tooltip.setAttribute('label', tooltiptext);
-
-		aEvent.stopPropagation();
-	},
-
-	formatTooltipText : function(aString) {
-		return aString.replace(/[\r\t]/g, ' ').replace(/\n/g, '');
-	},
-
-	constructTooltiptextForAlt : function(aTarget) {
-		if (
-			aTarget.ownerDocument.contentType.indexOf('image') == 0 ||
-			!aTarget.alt ||
-			aTarget.title
-			)
-			return null;
-
-		return this.findParentNodeByAttr(aTarget, 'title') ?
-			null :
-			this.formatTooltipText(String(aTarget.alt)) ;
-	},
-
-	constructTooltiptextFromAttributes : function(aTarget) {
-		var attrlist = this.attrlist.split(/[\|,\s]+/);
-		var recursive = prefs.getPref('browser.chrome.tooltips.attrlist.recursively');
-		var foundList = {};
-		for each (let attr in attrlist) {
-			if (!attr) continue;
-
-			let nodes = this.findParentNodesByAttr(aTarget, attr);
-			if (!nodes.length) continue;
-
-			for each (let node in nodes) {
-				if (!node) continue;
-
-				if (!node.getAttribute(attr))
-					continue;
-
-				if (!(node.nodeName in foundList))
-					foundList[node.nodeName] = {
-						_node : node
-					};
-
-				foundList[node.nodeName][attr] = node.getAttribute(attr);
-
-				if (!recursive) break;
-			}
-		}
-
-		var leaf;
-		var list = [];
-		for (let target in foundList) {
-			let leaf = ['< '+target+' >'];
-			let item = foundList[target];
-			for (let attr in item)
-				if (attr != '_node')
-					leaf.push('  '+attr+' : '+this.formatTooltipText(item[attr]));
-
-			list.push({
-				node : item._node,
-				text : leaf.join('\n')
-			});
-		}
-
-		var tooltiptext = [];
-		if (list.length) {
-			list.sort(function(aA, aB) {
-				return (aA.node.compareDocumentPosition(aB.node) & Ci.nsIDOMNode.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
-			});
-
-			for each (let item in list)
-				tooltiptext.push(item.text);
-		}
-		return tooltiptext.length ? tooltiptext.join('\n') : null ;
-	},
-
-
-	handleEvent : function(aEvent) {
-		if (aEvent.target.id == 'aHTMLTooltip' &&
-			aEvent.type == 'popupshowing')
-			this.onPopupShowing(aEvent);
-	},
+	MESSAGE_TYPE: '{61FD08D8-A2CB-46c0-B36D-3F531AC53C12}',
+	SCRIPT_URL: 'chrome://popupalt/content/content-utils.js',
 
 	init : function() {
-		this.tooltip.parentNode.addEventListener('popupshowing', this, true);
+		this._window.messageManager.loadFrameScript(this.SCRIPT_URL, true);
+		this.handleMessage = this.handleMessage.bind(this);
+		this._window.messageManager.addMessageListener(this.MESSAGE_TYPE, this.handleMessage);
 	},
 	destroy : function() {
-		this.tooltip.parentNode.removeEventListener('popupshowing', this, true);
+		this._window.messageManager.broadcastAsyncMessage(this.MESSAGE_TYPE, {
+			command : 'shutdown'
+		});
+		this._window.messageManager.removeDelayedFrameScript(this.SCRIPT_URL);
+		this._window.messageManager.removeMessageListener(this.MESSAGE_TYPE, this.handleMessage);
+		this.handleMessage = undefined;
+
 		delete this._window;
+	},
+
+	handleMessage : function(aMessage)
+	{
+		var browser = aMessage.target;
+		if (!browser || browser.localName != 'browser')
+			return;
+
+		switch (aMessage.json.command)
+		{
+			case 'tooltiptext':
+				/*
+				if (aMessage.json.text)
+					browser.setAttribute('tooltiptext', aMessage.json.text);
+				else
+					browser.removeAttribute('tooltiptext');
+				*/
+				return;
+		}
 	}
 };
 
 
 function shutdown() {
-	prefs = undefined;
 	PopupALT = undefined;
 }
 
