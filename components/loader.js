@@ -1,10 +1,11 @@
 /**
  * @fileOverview Loader module for restartless addons
  * @author       YUKI "Piro" Hiroshi
- * @version      11
+ * @contributor  Infocatcher
+ * @version      16
  *
  * @license
- *   The MIT License, Copyright (c) 2010-2014 YUKI "Piro" Hiroshi.
+ *   The MIT License, Copyright (c) 2010-2015 YUKI "Piro" Hiroshi.
  *   https://github.com/piroor/restartless/blob/master/license.txt
  * @url http://github.com/piroor/restartless
  */
@@ -19,26 +20,20 @@ function toPropertyDescriptors(aProperties) {
 }
 
 function inherit(aParent, aExtraProperties) {
-	if (!Object.create) {
-		aExtraProperties.__proto__ = aParent;
-		return aExtraProperties;
-	}
-	if (aExtraProperties)
-		return Object.create(aParent, toPropertyDescriptors(aExtraProperties));
+	var global;
+	if (Components.utils.getGlobalForObject)
+		global = Components.utils.getGlobalForObject(aParent);
 	else
-		return Object.create(aParent);
+		global = aParent.valueOf.call();
+	global = global || this;
+
+	var ObjectClass = global.Object || Object;
+	if (aExtraProperties)
+		return ObjectClass.create(aParent, toPropertyDescriptors(aExtraProperties));
+	else
+		return ObjectClass.create(aParent);
 }
 
-/** You can customize shared properties for loaded scripts. */
-var Application = (function() {
-	if ('@mozilla.org/fuel/application;1' in Components.classes)
-		return Components.classes['@mozilla.org/fuel/application;1']
-				.getService(Components.interfaces.fuelIApplication);
-	if ('@mozilla.org/steel/application;1' in Components.classes)
-		return Components.classes['@mozilla.org/steel/application;1']
-				.getService(Components.interfaces.steelIApplication);
-	return null;
-})();
 // import base64 utilities from the js code module namespace
 try {
 	var { atob, btoa } = Components.utils.import('resource://gre/modules/Services.jsm', {});
@@ -50,12 +45,14 @@ try {
 } catch(e) {
 	Components.utils.reportError(new Error('failed to load Console.jsm'));
 }
+
+var { Promise } = Components.utils.import('resource://gre/modules/Promise.jsm', {});
+
 var _namespacePrototype = {
 		Cc : Components.classes,
 		Ci : Components.interfaces,
 		Cu : Components.utils,
 		Cr : Components.results,
-		Application : Application,
 		console : this.console,
 		btoa    : function(aInput) {
 			return btoa(aInput);
@@ -66,6 +63,7 @@ var _namespacePrototype = {
 		inherit : function(aParent, aExtraProperties) {
 			return inherit(aParent, aExtraProperties);
 		},
+		Promise : Promise,
 	};
 var _namespaces;
 
@@ -109,7 +107,7 @@ function load(aURISpec, aExportTargetForImport, aExportTargetForRequire, aRoot)
 	catch(e) {
 		let message = 'Loader::load('+aURISpec+') failed!\n'+e+'\n';
 		dump(message);
-		Components.utils.reportError(message + e.stack);
+		Components.utils.reportError(message + e.stack.replace(/( -> )/g, '\n$1'));
 		throw e;
 	}
 	_exportForImport(ns, aExportTargetForImport);
@@ -195,33 +193,6 @@ function exists(aPath, aBaseURI)
 		let resolved = baseURI.resolve(aPath);
 		return FileHandler.getFileFromURLSpec(resolved).exists() ? resolved : null ;
 	}
-}
-
-function doAndWait(aAsyncTask)
-{
-	const Cc = Components.classes;
-	const Ci = Components.interfaces;
-
-	var done = false;
-	var returnedValue = void(0);
-	var continuation = function(aReturnedValue) {
-			done = true;
-			returnedValue = aReturnedValue;
-		};
-
-	var timer = Cc['@mozilla.org/timer;1']
-					.createInstance(Ci.nsITimer);
-	timer.init(function() {
-		aAsyncTask(continuation);
-	}, 0, Ci.nsITimer.TYPE_ONE_SHOT);
-
-	var thread = Cc['@mozilla.org/thread-manager;1']
-					.getService(Ci.nsIThreadManager)
-					.currentThread;
-	while (!done) {
-		thread.processNextEvent(true);
-	}
-	return returnedValue;
 }
 
 function _readFrom(aURISpec, aEncoding)
@@ -328,9 +299,6 @@ function _createNamespace(aURISpec, aRoot)
 			read : function(aURISpec, aEncoding, aBaseURI) {
 				return _readFrom(this.resolve(aURISpec, aBaseURI), aEncoding);
 			},
-			doAndWait : function(aAsyncTask) {
-				return doAndWait(aAsyncTask);
-			},
 			exports : {}
 		});
 	return ns;
@@ -359,19 +327,42 @@ function _createFakeLocation(aURI)
 
 function _callHandler(aHandler, aReason)
 {
+	var handlers = [];
 	for (var i in _namespaces)
 	{
-		try {
-			if (_namespaces[i][aHandler] &&
-				typeof _namespaces[i][aHandler] == 'function')
-				_namespaces[i][aHandler](aReason);
-		}
-		catch(e) {
-			let message = i+'('+aHandler+', '+aReason+')\n'+e+'\n';
-			dump(message);
-			Components.utils.reportError(message + e.stack);
-		}
+		if (_namespaces[i][aHandler] &&
+			typeof _namespaces[i][aHandler] == 'function')
+			handlers.push({
+				key       : i,
+				namespace : _namespaces[i],
+				handler   : _namespaces[i][aHandler]
+			});
 	}
+
+	return new Promise(function(aResolve, aReject) {
+		var processHandler = function() {
+			var handler = handlers.shift();
+			if (!handler)
+				return aResolve();
+
+			try {
+				var result = handler.handler.call(handler.namespace, aReason);
+			}
+			catch(e) {
+				let message = i+'('+aHandler+', '+aReason+')\n'+e+'\n';
+				dump(message);
+				Components.utils.reportError(message + e.stack.replace(/( -> )/g, '\n$1'));
+			}
+
+			if (result && typeof result.then == 'function') {
+				result.then(processHandler);
+			}
+			else {
+				processHandler();
+			}
+		};
+		processHandler();
+	});
 }
 
 function registerResource(aName, aRoot)
@@ -403,31 +394,32 @@ function uninstall(aReason)
 /** Handler for "shutdown" of the bootstrap.js */
 function shutdown(aReason)
 {
-	_callHandler('shutdown', aReason);
+	_callHandler('shutdown', aReason)
+		.then(function() {
+			for each (let ns in _namespaces)
+			{
+				for (let i in ns.exports)
+				{
+					if (ns.exports.hasOwnProperty(i))
+						delete ns.exports[i];
+				}
+			}
+			_namespaces = void(0);
+			_namespacePrototype = void(0);
 
-	for each (let ns in _namespaces)
-	{
-		for (let i in ns.exports)
-		{
-			if (ns.exports.hasOwnProperty(i))
-				delete ns.exports[i];
-		}
-	}
-	_namespaces = void(0);
-	_namespacePrototype = void(0);
-	Application = void(0);
+			IOService = void(0);
+			FileHandler = void(0);
+			Promise = void(0);
 
-	IOService = void(0);
-	FileHandler = void(0);
-
-	load = void(0);
-	_exportSymbols = void(0);
-	exists = void(0);
-	_createNamespace = void(0);
-	_callHandler = void(0);
-	registerResource = void(0);
-	unregisterResource = void(0);
-	install = void(0);
-	uninstall = void(0);
-	shutdown = void(0);
+			load = void(0);
+			_exportSymbols = void(0);
+			exists = void(0);
+			_createNamespace = void(0);
+			_callHandler = void(0);
+			registerResource = void(0);
+			unregisterResource = void(0);
+			install = void(0);
+			uninstall = void(0);
+			shutdown = void(0);
+		});
 }
