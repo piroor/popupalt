@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 3.0.2016020501
+   * Works on Nightly 47.0a1.
+   * Drop support for Firefox 37 and older.
  - 2.0.2014050101
    * Works on Nightly 32.0a1.
  - 2.0.2012122901
