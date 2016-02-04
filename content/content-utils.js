@@ -94,24 +94,18 @@
 		},
 
 		handleEvent : function(aEvent) {
-			var target = aEvent.relatedTarget;
-			if (!target)
-				return;
+			var target = aEvent.target;
+			var window = (target.ownerDocument || target).defaultView;
 
 			switch (aEvent.type)
 			{
-				case 'mouseover':
-					target.__popupalt__hovering = true;
-					target.ownerDocument.defaultView.setTimeout((function() {
-						if (!target.__popupalt__hovering)
-							return;
-
+				case 'mousemove':
+					if (window.__popupalt__delayedUpdate)
+						window.clearTimeout(window.__popupalt__delayedUpdate);
+					window.__popupalt__delayedUpdate = window.setTimeout((function() {
+						window.__popupalt__delayedUpdate = null;
 						this.updateTooltiptext(target);
 					}).bind(this), 100);
-					return;
-
-				case 'mouseout':
-					delete target.__popupalt__hovering;
 					return;
 			}
 		},
@@ -232,11 +226,11 @@
 		{
 			case 'shutdown':
 				global.removeMessageListener(MESSAGE_TYPE, handleMessage);
-				global.removeEventListener('mouseover', PopupALT, true);
+				global.removeEventListener('mousemove', PopupALT, true);
 				free();
 				return;
 		}
 	}
 	global.addMessageListener(MESSAGE_TYPE, handleMessage);
-	global.addEventListener('mouseover', PopupALT, true);
+	global.addEventListener('mousemove', PopupALT, true);
 })(this);
