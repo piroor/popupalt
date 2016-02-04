@@ -133,11 +133,6 @@
 			if (!aTarget.hasAttribute('data-popupalt-original-title'))
 				aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title'));
 			aTarget.setAttribute('title', tooltiptext);
-
-			global.sendAsyncMessage(MESSAGE_TYPE, {
-				command : 'tooltiptext',
-				text    : tooltiptext
-			});
 		},
 
 		formatTooltipText : function(aString) {

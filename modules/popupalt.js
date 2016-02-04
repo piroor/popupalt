@@ -45,37 +45,14 @@ PopupALT.prototype = {
 
 	init : function() {
 		this._window.messageManager.loadFrameScript(this.SCRIPT_URL, true);
-		this.handleMessage = this.handleMessage.bind(this);
-		this._window.messageManager.addMessageListener(this.MESSAGE_TYPE, this.handleMessage);
 	},
 	destroy : function() {
 		this._window.messageManager.broadcastAsyncMessage(this.MESSAGE_TYPE, {
 			command : 'shutdown'
 		});
 		this._window.messageManager.removeDelayedFrameScript(this.SCRIPT_URL);
-		this._window.messageManager.removeMessageListener(this.MESSAGE_TYPE, this.handleMessage);
-		this.handleMessage = undefined;
 
 		delete this._window;
-	},
-
-	handleMessage : function(aMessage)
-	{
-		var browser = aMessage.target;
-		if (!browser || browser.localName != 'browser')
-			return;
-
-		switch (aMessage.json.command)
-		{
-			case 'tooltiptext':
-				/*
-				if (aMessage.json.text)
-					browser.setAttribute('tooltiptext', aMessage.json.text);
-				else
-					browser.removeAttribute('tooltiptext');
-				*/
-				return;
-		}
 	}
 };
 
