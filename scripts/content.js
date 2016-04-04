@@ -32,28 +32,31 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-(function(global) {
-	var Cc = Components.classes;
-	var Ci = Components.interfaces;
-	var Cu = Components.utils;
-	var Cr = Components.results;
 
-	var { Services } = Cu.import('resource://gre/modules/Services.jsm', {});
+document.addEventListener('DOMContentLoaded', function onReady() {
+	document.removeEventListener('DOMContentLoaded', onReady);
 
-	var MESSAGE_TYPE = '{61FD08D8-A2CB-46c0-B36D-3F531AC53C12}';
-
-	function free()
-	{
-		free =
-			Cc = Ci = Cu = Cr =
-			Services =
-			MESSAGE_TYPE =
-			PopupALT =
-			handleMessage =
-				undefined;
-	}
-
+	var delayedUpdate = null;
 	var PopupALT = {
+		configs : {
+			attrListEnabled : false,
+			attrList : 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit',
+			attrListRecursively : false
+		},
+		loadConfigs : function() {
+			return new Promise((function(aResolve, aReject) {
+				try {
+					chrome.storage.local.get(this.configs, (function(aValues) {
+						this.configs = aValues;
+						aResolve();
+					}).bind(this));
+				}
+				catch(e) {
+					aReject(e);
+				}
+			}).bind(this));
+		},
+
 		findParentNodeByAttr : function(aNode, aAttr) {
 			if (!aNode) return null;
 
@@ -61,7 +64,7 @@
 					'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")][1]',
 					aNode,
 					null,
-					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
+					XPathResult.FIRST_ORDERED_NODE_TYPE,
 					null
 				).singleNodeValue;
 		},
@@ -73,7 +76,7 @@
 					'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")]',
 					aNode,
 					null,
-					Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+					XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 					null
 				);
 			for (var i = 0, maxi = result.snapshotLength; i < maxi; i++)
@@ -84,13 +87,8 @@
 		},
 
 		get attrlist() {
-			try {
-				return Services.prefs.getBoolPref('browser.chrome.tooltips.attrlist.enabled') ?
-						decodeURIComponent(escape(Services.prefs.getCharPref('browser.chrome.tooltips.attrlist'))) : null ;
-			}
-			catch(e) {
-				return null;
-			}
+			this.configs.attrListEnabled ?
+				 this.configs.attrList : null ;
 		},
 
 		handleEvent : function(aEvent) {
@@ -100,12 +98,18 @@
 			switch (aEvent.type)
 			{
 				case 'mousemove':
-					if (window.__popupalt__delayedUpdate)
-						window.clearTimeout(window.__popupalt__delayedUpdate);
-					window.__popupalt__delayedUpdate = window.setTimeout((function() {
-						window.__popupalt__delayedUpdate = null;
+					if (delayedUpdate)
+						window.clearTimeout(delayedUpdate);
+					delayedUpdate = window.setTimeout((function() {
+						delayedUpdate = null;
 						this.updateTooltiptext(target);
 					}).bind(this), 100);
+					return;
+
+				case 'unload':
+					document.removeEventListener('mousemove', PopupALT, true);
+					document.removeEventListener('unload', PopupALT);
+					PopupALT = undefined;
 					return;
 			}
 		},
@@ -114,7 +118,7 @@
 			while (
 				aTarget &&
 				(
-					aTarget.nodeType != Ci.nsIDOMNode.ELEMENT_NODE ||
+					aTarget.nodeType != Node.ELEMENT_NODE ||
 					!aTarget.attributes.length
 				)
 				)
@@ -154,12 +158,7 @@
 
 		constructTooltiptextFromAttributes : function(aTarget) {
 			var attrlist = this.attrlist.split(/[\|,\s]+/);
-			var recursive = false;
-			try {
-				recursive = Services.prefs.getBoolPref('browser.chrome.tooltips.attrlist.recursively');
-			}
-			catch(e) {
-			}
+			var recursive = this.configs.attrListRecursively;
 			var foundList = {};
 			for each (let attr in attrlist) {
 				if (!attr) continue;
@@ -205,7 +204,7 @@
 			var tooltiptext = [];
 			if (list.length) {
 				list.sort(function(aA, aB) {
-					return (aA.node.compareDocumentPosition(aB.node) & Ci.nsIDOMNode.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
+					return (aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
 				});
 
 				for each (let item in list)
@@ -215,17 +214,12 @@
 		}
 	};
 
-	function handleMessage(aMessage)
-	{
-		switch (aMessage.json.command)
-		{
-			case 'shutdown':
-				global.removeMessageListener(MESSAGE_TYPE, handleMessage);
-				global.removeEventListener('mousemove', PopupALT, true);
-				free();
-				return;
-		}
-	}
-	global.addMessageListener(MESSAGE_TYPE, handleMessage);
-	global.addEventListener('mousemove', PopupALT, true);
-})(this);
+	PopupALT.loadConfigs()
+		.catch(function(e) {
+			console.log('error: ' + e);
+		})
+		.then(function() {
+			document.addEventListener('mousemove', PopupALT, true);
+			document.addEventListener('unload', PopupALT);
+		});
+});

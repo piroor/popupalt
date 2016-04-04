@@ -1,0 +1,5 @@
+{
+  "name": { "message": "Popup ALT Attribute" },
+  "description": { "message": "画像の代替テキストをNetscapeCommunicator 4.xのようにポップアップ表示したり、長い説明文を複数行で表示したりできるようにします。" },
+  "homepageURL": { "message": "http://piro.sakura.ne.jp/xul/_popupalt.html" }
+}

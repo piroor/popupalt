@@ -1,0 +1,5 @@
+{
+  "name": { "message": "Popup ALT Attribute" },
+  "description": { "message": "Popups alternate texts of images or others like NetscapeCommunicator(Navigator) 4.x, and show long descriptions in the multi-row tooltip." },
+  "homepageURL": { "message": "http://piro.sakura.ne.jp/xul/_popupalt.html.en" }
+}

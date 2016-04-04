@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_name__",
+  "version": "4.0",
+  "description": "__MSG_description__",
+  "icons": {
+    "32": "icons/icon.png"
+  },
+  "default_locale": "en_US",
+  "applications": {
+    "gecko": {
+      "id": "{61FD08D8-A2CB-46c0-B36D-3F531AC53C12}",
+      "strict_min_version": "45.0"
+    }
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "scripts/content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "options_page": "options/options.html",
+  "permissions": [
+    "storage"
+  ]
+}
