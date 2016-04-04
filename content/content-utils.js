@@ -156,7 +156,7 @@
 			var attrlist = this.attrlist.split(/[\|,\s]+/);
 			var recursive = false;
 			try {
-				Services.prefs.getBoolPref('browser.chrome.tooltips.attrlist.recursively');
+				recursive = Services.prefs.getBoolPref('browser.chrome.tooltips.attrlist.recursively');
 			}
 			catch(e) {
 			}
