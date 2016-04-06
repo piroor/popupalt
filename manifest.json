@@ -16,6 +16,7 @@
   "background": {
     "scripts": [
       "scripts/log.js",
+      "scripts/Configs.js",
       "scripts/configs.js"
     ]
   },
@@ -27,6 +28,7 @@
       ],
       "js": [
         "scripts/log.js",
+        "scripts/Configs.js",
         "scripts/configs.js",
         "scripts/content.js"
       ],
