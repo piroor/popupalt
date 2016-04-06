@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 		},
 
 		get attrlist() {
-			configs.attrListEnabled ?
+			return configs.attrListEnabled ?
 				 configs.attrList : null ;
 		},
 
