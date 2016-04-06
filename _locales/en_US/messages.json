@@ -3,8 +3,11 @@
   "description": { "message": "Popups alternate texts of images or others like NetscapeCommunicator(Navigator) 4.x, and show long descriptions in the multi-row tooltip." },
   "homepageURL": { "message": "http://piro.sakura.ne.jp/xul/_popupalt.html.en" },
 
-  "configs.attrListEnabled": { "message": "Show more attributes" },
-  "configs.attrList.before": { "message": "List of attributes to be shown (delimiter: \"|\"):" },
-  "configs.attrList.after": { "message": "" },
-  "configs.attrListRecursively": { "message": "Show attributes of ancestores also" }
+  "config.attrListEnabled.label": { "message": "Show more attributes" },
+  "config.attrListEnabled.tooltip": { "message": "If you check this, various attributes not only \"alt\" and \"title\" are also displayed in the tooltip." },
+  "config.attrList.label.before": { "message": "List of attributes to be shown:" },
+  "config.attrList.tooltip": { "message": "Write name of attributes to be shown, delimited with \"|\"." },
+  "config.attrList.label.after": { "message": "" },
+  "config.attrListRecursively.label": { "message": "Show attributes of ancestores also" },
+  "config.attrListRecursively.tooltip": { "message": "If you check this, all ancestor nodes are also scanned." }
 }

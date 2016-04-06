@@ -3,8 +3,11 @@
   "description": { "message": "画像の代替テキストをNetscapeCommunicator 4.xのようにポップアップ表示したり、長い説明文を複数行で表示したりできるようにします。" },
   "homepageURL": { "message": "http://piro.sakura.ne.jp/xul/_popupalt.html" },
 
-  "configs.attrListEnabled": { "message": "他の属性値も表示する" },
-  "configs.attrList.before": { "message": "表示する属性のリスト（\"|\"区切り）" },
-  "configs.attrList.after": { "message": "" },
-  "configs.attrListRecursively": { "message": "祖先要素の属性値も表示する" }
+  "config.attrListEnabled.label": { "message": "他の属性値も表示する" },
+  "config.attrListEnabled.tooltip": { "message": "alt属性とtitle属性以外もツールチップに表示します。" },
+  "config.attrList.label.before": { "message": "表示する属性のリスト:" },
+  "config.attrList.label.after": { "message": "" },
+  "config.attrList.tooltip": { "message": "属性名を \"|\" で区切って記述して下さい。" },
+  "config.attrListRecursively.label": { "message": "祖先要素の属性値も表示する" },
+  "config.attrListRecursively.tooltip": { "message": "祖先要素まで遡って属性値を表示します。" }
 }

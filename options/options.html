@@ -9,18 +9,21 @@
     <script type="application/javascript" src="../scripts/Configs.js"></script>
     <script type="application/javascript" src="../scripts/configs.js"></script>
     <script type="application/javascript" src="./options.js"></script>
-    <script type="application/javascript" src="./localizeLabels.js"></script>
+    <script type="application/javascript" src="./scripts/l10n.js"></script>
   </head>
   <body>
-    <p><label><input type="checkbox"
-                     id="attrListEnabled">
-              __MSG_configs.attrListEnabled__</label></p>
-    <p><label>__MSG_configs.attrList.before__
-              <input type="text"
-                     id="attrList">
-              __MSG_configs.attrList.after__</label></p>
-    <p><label><input type="checkbox"
-                     id="attrListRecursively">
-              __MSG_configs.attrListRecursively__</label></p>
+    <p title="__MSG_config.attrListEnabled.tooltip__">
+      <label><input id="attrListEnabled"
+                    type="checkbox">
+             __MSG_config.attrListEnabled.label__</label></p>
+    <p title="__MSG_config.attrList.tooltip__">
+      <label>__MSG_config.attrList.label.before__
+             <input id="attrList"
+                    type="text">
+             __MSG_config.attrList.label.after__</label></p>
+    <p title="__MSG_config.attrListRecursively.tooltip__">
+      <label><input id="attrListRecursively"
+                    type="checkbox">
+             __MSG_config.attrListRecursively.label__</label></p>
   </body>
 </html>
