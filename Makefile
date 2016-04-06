@@ -4,10 +4,14 @@ PACKAGE_NAME = popupalt
 
 all: xpi
 
-xpi: makexpi/makexpi.sh
+xpi: makexpi/makexpi.sh extlib/webextensions-lib-configs/inherit.jsm
+	cp extlib/webextensions-lib-configs/Configs.js scripts/
 	makexpi/makexpi.sh -n $(PACKAGE_NAME) -o
 
 makexpi/makexpi.sh:
+	git submodule update --init
+
+extlib/webextensions-lib-configs/Configs.js:
 	git submodule update --init
 
 signed: xpi

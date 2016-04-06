@@ -1,3 +1,6 @@
 [submodule "makexpi"]
 	path = makexpi
 	url = https://github.com/piroor/makexpi.git
+[submodule "extlib/webextensions-lib-configs"]
+	path = extlib/webextensions-lib-configs
+	url = https://github.com/piroor/webextensions-lib-configs.git
