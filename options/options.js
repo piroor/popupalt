@@ -4,11 +4,29 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-function bindBoolean(aKey, aId) {
-	var node = document.getElementById(aId);
+var throttleTimers = {};
+function throttledUpdate(aKey, aValue) {
+	if (throttleTimers[aKey])
+		clearTimeout(throttleTimers[aKey]);
+	throttleTimers[aKey] = setTimeout(function() {
+		delete throttleTimers[aKey];
+		configs[aKey] = aValue;
+	}, 250);
+}
+
+function bindToCheckbox(aKey) {
+	var node = document.getElementById(aKey);
 	node.checked = configs[aKey];
 	node.addEventListener('change', function() {
-		configs[aKey] = node.checked;
+		throttledUpdate(aKey, node.checked);
+	});
+}
+
+function bindToTextField(aKey) {
+	var node = document.getElementById(aKey);
+	node.value = configs[aKey];
+	node.addEventListener('input', function() {
+		throttledUpdate(aKey, node.value);
 	});
 }
 
@@ -17,9 +35,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
 	configs.load()
 		.then(function() {
-			bindBoolean('attrListEnabled', 'configs.attrListEnabled');
-			document.getElementById('configs.attrList')
-				.value = configs.attrList;
-			bindBoolean('attrListRecursively', 'configs.attrListRecursively');
+			bindToCheckbox('attrListEnabled');
+			bindToTextField('attrList');
+			bindToCheckbox('attrListRecursively');
 		});
 });
