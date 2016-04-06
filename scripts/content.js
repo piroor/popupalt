@@ -38,25 +38,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
 	var delayedUpdate = null;
 	var PopupALT = {
-		configs : {
-			attrListEnabled : false,
-			attrList : 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit',
-			attrListRecursively : false
-		},
-		loadConfigs : function() {
-			return new Promise((function(aResolve, aReject) {
-				try {
-					chrome.storage.local.get(this.configs, (function(aValues) {
-						this.configs = aValues;
-						aResolve();
-					}).bind(this));
-				}
-				catch(e) {
-					aReject(e);
-				}
-			}).bind(this));
-		},
-
 		findParentNodeByAttr : function(aNode, aAttr) {
 			if (!aNode) return null;
 
@@ -87,8 +68,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 		},
 
 		get attrlist() {
-			this.configs.attrListEnabled ?
-				 this.configs.attrList : null ;
+			configs.attrListEnabled ?
+				 configs.attrList : null ;
 		},
 
 		handleEvent : function(aEvent) {
@@ -158,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
 		constructTooltiptextFromAttributes : function(aTarget) {
 			var attrlist = this.attrlist.split(/[\|,\s]+/);
-			var recursive = this.configs.attrListRecursively;
+			var recursive = configs.attrListRecursively;
 			var foundList = {};
 			for each (let attr in attrlist) {
 				if (!attr) continue;
@@ -214,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 		}
 	};
 
-	PopupALT.loadConfigs()
+	configs.load()
 		.catch(function(e) {
 			console.log('error: ' + e);
 		})
