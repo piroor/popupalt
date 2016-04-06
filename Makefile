@@ -4,7 +4,7 @@ PACKAGE_NAME = popupalt
 
 all: xpi
 
-xpi: makexpi/makexpi.sh extlib/webextensions-lib-configs/inherit.jsm
+xpi: makexpi/makexpi.sh extlib/webextensions-lib-configs/Configs.js
 	cp extlib/webextensions-lib-configs/Configs.js scripts/
 	makexpi/makexpi.sh -n $(PACKAGE_NAME) -o
 
