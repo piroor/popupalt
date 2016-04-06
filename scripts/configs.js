@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-var configs = new Configs{
+var configs = new Configs({
 	attrListEnabled : false,
 	attrList : 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit',
 	attrListRecursively : false
