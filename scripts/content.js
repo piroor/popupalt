@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 	};
 
 	log('load configs');
-	configs.load()
+	configs.$loaded
 		.catch(function(e) {
 			log('error: ' + e);
 		})

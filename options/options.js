@@ -33,7 +33,7 @@ function bindToTextField(aKey) {
 document.addEventListener('DOMContentLoaded', function onReady() {
 	document.removeEventListener('DOMContentLoaded', onReady);
 
-	configs.load()
+	configs.$loaded
 		.then(function() {
 			bindToCheckbox('attrListEnabled');
 			bindToTextField('attrList');
