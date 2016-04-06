@@ -195,11 +195,13 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 		}
 	};
 
+	log('load configs');
 	configs.load()
 		.catch(function(e) {
-			console.log('error: ' + e);
+			log('error: ' + e);
 		})
 		.then(function() {
+			log('configs loaded');
 			document.addEventListener('mousemove', PopupALT, true);
 			document.addEventListener('unload', PopupALT);
 		});

@@ -13,6 +13,12 @@
       "strict_min_version": "48.0a1"
     }
   },
+  "background": {
+    "scripts": [
+      "scripts/log.js",
+      "scripts/configs.js"
+    ]
+  },
   "content_scripts": [
     {
       "all_frames": true,
@@ -20,7 +26,8 @@
         "<all_urls>"
       ],
       "js": [
-        "scripts/configs.js"
+        "scripts/log.js",
+        "scripts/configs.js",
         "scripts/content.js"
       ],
       "run_at": "document_start"

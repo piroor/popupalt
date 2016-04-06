@@ -5,11 +5,21 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <script type="application/javascript" src="../scripts/log.js"></script>
     <script type="application/javascript" src="../scripts/configs.js"></script>
     <script type="application/javascript" src="./options.js"></script>
     <script type="application/javascript" src="./localizeLabels.js"></script>
   </head>
   <body>
-    Options for <span>__MSG_name__</span>
+  	<p><label><input type="checkbox"
+  	                 id="configs.attrListEnabled">
+  	          __MSG_configs.attrListEnabled__</label></p>
+  	<p><label>__MSG_configs.attrList.before__
+  	          <input type="text"
+  	                 id="configs.attrList">
+  	          __MSG_configs.attrList.after__</label></p>
+  	<p><label><input type="checkbox"
+  	                 id="configs.attrListRecursively">
+  	          __MSG_configs.attrListRecursively__</label></p>
   </body>
 </html>

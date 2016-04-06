@@ -1,5 +1,10 @@
 {
   "name": { "message": "Popup ALT Attribute" },
   "description": { "message": "Popups alternate texts of images or others like NetscapeCommunicator(Navigator) 4.x, and show long descriptions in the multi-row tooltip." },
-  "homepageURL": { "message": "http://piro.sakura.ne.jp/xul/_popupalt.html.en" }
+  "homepageURL": { "message": "http://piro.sakura.ne.jp/xul/_popupalt.html.en" },
+
+  "configs.attrListEnabled": { "message": "Show more attributes" },
+  "configs.attrList.before": { "message": "List of attributes to be shown (delimiter: \"|\"):" },
+  "configs.attrList.after": { "message": "" },
+  "configs.attrListRecursively": { "message": "Show attributes of ancestores also" }
 }
