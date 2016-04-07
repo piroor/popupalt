@@ -2,9 +2,9 @@
 
 Hello, addon developers. I'm [YUKI Hiroshi aka Piro](https://github.com/piroor/), a developer of Firefox addon.
 
-For long years (before Firefox 1.0 was released) I developed many number of Firefox/Thunderbird addons [personally](https://addons.mozilla.org/ja/firefox/user/piro-piro_or/#my-submissions) and [on business](https://addons.mozilla.org/en-US/firefox/user/clearcode-inc/#my-submissions), based on XUL and XPCOM.
-By some reasons I didn't migrate my addons from such a legacy style to SDK-based, but recently I started to research [what APIs are required to migrate my addons to WebExtensions](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo), because [Mozilla announced that XUL/XPCOM addons will be ended at end of 2017](https://wiki.mozilla.org/Add-ons/developer/communication).
-And I realized that there are limited APIs on WebExtensions for me but some addons are possibly migretable only with [currently available APIs](https://developer.mozilla.org/en-US/Add-ons/WebExtensions).
+For long years I developed Firefox/Thunderbird addons [personally](https://addons.mozilla.org/ja/firefox/user/piro-piro_or/#my-submissions) and [on business](https://addons.mozilla.org/en-US/firefox/user/clearcode-inc/#my-submissions), based on XUL and XPCOM.
+By some reasons I didn't migrate my addons from such a legacy style to SDK-based, but recently I started to research [what APIs are required to migrate my addons to WebExtensions](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo), because [Mozilla announced that XUL/XPCOM addons will be ended at the end of 2017](https://wiki.mozilla.org/Add-ons/developer/communication).
+And I realized that some addons are possibly migretable only with [currently available APIs](https://developer.mozilla.org/en-US/Add-ons/WebExtensions).
 The [Popup ALT Attribute](https://addons.mozilla.org/firefox/addon/popup-alt-attribute/) is one of such addons.
 
 Recently [I've successfully done it](https://github.com/piroor/popupalt/tree/webextensions), so let's describe how I did that.
@@ -14,7 +14,7 @@ Recently [I've successfully done it](https://github.com/piroor/popupalt/tree/web
 
 At first I explain what the addon Popup ALT Attribute is.
 It is one of ancient addons [started on 2002](http://piro.sakura.ne.jp/xul/_popupalt.html.en#focused-folding-item%28folding-item-history-1%29), to show what is written at the `alt` attribute of `img` HTML elements in webpages.
-By default Firefox shows only the `title` attribute of an HTML element as a tooltip.
+By default Firefox shows only the `title` attribute as a tooltip.
 For example:
 
     <img src="dog.jpg" title="a photo of a dog">:
@@ -24,7 +24,7 @@ For example:
       With the addon, a tooltip appears with a text "(a photo of a dog)"
       like ancient Netscape Navigator 4 or MSIE.
 
-Initially the addon was [implemented to replace a global function `FillInHTMLTooltip()` defined by Firefox itself, with my custom version.](https://github.com/piroor/popupalt/blob/3615892354fe05f2cae6bab89708ee62854f36b8/content/popupalt/popupalt.xul)
+Initially the addon was [implemented to replace an internal function `FillInHTMLTooltip()` defined by Firefox itself, with my custom version.](https://github.com/piroor/popupalt/blob/3615892354fe05f2cae6bab89708ee62854f36b8/content/popupalt/popupalt.xul)
 
 
 ## Step 1: Made dyanmically installable/uninstallable
