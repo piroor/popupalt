@@ -44,7 +44,7 @@ That is a major way to do something on a XUL/XPCOM addon.
 
 At Febrary 2016 I migrated it to ready for e10s.
 To be honest *it was the largest barrier on my case*.
-Through migration of Firefox itself for e10s, implementation to fill the tooltip was moved to [the lower layer written in C++](http://mxr.mozilla.org/mozilla-esr45/source/embedding/browser/nsDocShellTreeOwner.cpp#1050) and *I had to give up the old approach which overrides the behavior around content tooltip of Firefox itself*, because a bootstrapped extension written in JavaScript cannot access to such operations in low layer.
+Through migration of Firefox itself for e10s, implementation to fill the tooltip was moved to [the lower layer written in C++](http://mxr.mozilla.org/mozilla-esr45/source/embedding/browser/nsDocShellTreeOwner.cpp#1050) and *I had to give up the old approach which overrides the behavior around content tooltip of Firefox itself*, because a bootstrapped extension written in JavaScript cannot access to such operations in the low layer.
 
 Instead I noticed that Firefox always shows tooltip for an HTML element when it has own `title` attribute.
 So, I decided to copy the value of `alt` attribute to the `title` attribute for hover-ed HTML elements themselves, when any `mousemove` event is fired in web pages.
@@ -126,7 +126,7 @@ And after:
 The script touched to `nsIPrefBranch` and some XPCOM components via XPConnect, so they were temporarily commented out.
 User preferences were not available and only default configurations were there as fixed values.
 Moreover, some constant properties accessed like `Ci.nsIDOMNode.ELEMENT_NODE` had to be replaced as `Node.ELEMENT_NODE`.
-The listener for `mousemove` events from web pages was attached to the global namespace for a frame script, but it was re-attached to the `document` itself of an web page, because it was now executed on web pages directly.
+The listener for `mousemove` events from web pages was attached to the global namespace for a frame script, but it was re-attached to the `document` itself of an web page, because the script was now executed on web pages directly.
 
 
 ## Step 4: Localization
@@ -170,6 +170,9 @@ And, I had to update my `manifest.json` to embed localized messages:
 `__MSG_****__` in string values are automatically replaced to localized messages.
 You need to specify the default locale manually via the `default_locale` key.
 
+Note, Firefox 45 does not support the localization feature.
+You need to use Nightly 48.0a1 or newer to try localization.
+
 
 ## Step 5: User preferences
 
@@ -185,13 +188,15 @@ I don't describe how I did it here, but if you hope to know details, please see 
 There are just 177 lines for now.
 
 
-
 ## Step 6: Options UI
 
+WebExtensions provides [a feature to create options pages for addons](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/options_ui).
+It is also not supported on Firefox 45, so you need to use Nightly 48.0a1 for now.
 
+In XUL/XPCOM addons rich XUL elements (`<checkbox>`, `<textbox>`, `<menulist>`, etc.) are available, but as I told, XUL is going to end.
+So I had to implement custom configuration UI based on pure HTML and JavaScript.
+On this step I created two libraries: [one is a helper to bind configurations to UI elements](https://github.com/piroor/webextensions-lib-options), and [another is a helper to apply localized messages to a static HTML](https://github.com/piroor/webextensions-lib-l10n).
 
-
-    
 
 ## Conclusion
 
