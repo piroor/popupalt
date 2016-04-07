@@ -7,7 +7,7 @@ By some reasons I didn't migrate my addons from such a legacy style to SDK-based
 And I realized that there are limited APIs on WebExtensions for me but some addons are possibly migretable only with [currently available APIs](https://developer.mozilla.org/en-US/Add-ons/WebExtensions).
 The [Popup ALT Attribute](https://addons.mozilla.org/firefox/addon/popup-alt-attribute/) is one of such addons.
 
-Recently I've successfully done it, so let's describe how I did that.
+Recently [I've successfully done it](https://github.com/piroor/popupalt/tree/webextensions), so let's describe how I did that.
 
 
 ## What's the addon?
@@ -201,6 +201,8 @@ On this step I created two libraries: [one is a helper to bind configurations to
 ## Conclusion
 
 As above, I've successfully migrated my Popup ALT Attribute addon from XUL/XPCOM to WebExtensions.
+(Now it is [just a branch](https://github.com/piroor/popupalt/tree/webextensions) but I'll release it after Firefox 48 is released.)
+
 Here are reasons why I could do it:
 
  * It was a bootstrapped addon.
