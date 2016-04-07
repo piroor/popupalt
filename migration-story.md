@@ -185,7 +185,7 @@ I had to create a background script to access the storage, and communicate with 
 
 Finally, [I created a tiny library to do that](https://github.com/piroor/webextensions-lib-configs).
 I don't describe how I did it here, but if you hope to know details, please see [the source](https://github.com/piroor/webextensions-lib-configs/blob/master/Configs.js).
-There are just 177 lines for now.
+There are just 177 lines.
 
 
 ## Step 6: Options UI
@@ -200,4 +200,21 @@ On this step I created two libraries: [one is a helper to bind configurations to
 
 ## Conclusion
 
+As above, I've successfully migrated my Popup ALT Attribute addon from XUL/XPCOM to WebExtensions.
+Here are reasons why I could do it:
 
+ * It was a bootstrapped addon.
+ * Core implementation of the addon was similar to a simple user script (after e10s migration.)
+   Essential actions of the addon were enclosed inside the content area, and no privilege was required to do that.
+
+However, it is a rare case for me.
+My other 40+ addons require some privilege, and/or they work outside the content area.
+
+For example, my another addon [Text Link](https://addons.mozilla.org/firefox/addon/text-link/) (which provides ability to open a URL text like a link via lazy double-click without carefully selecting, and ability to copy only URL texts extracted from the selection) requires some XPCOM components to detect URL-like text correctly.
+To migrate it to WebExtensions completely, something API to get selection string as rendered (for example, `<br>`s will produce virtual line break) and something like [RangeFinder](http://w3c.github.io/web-annotation/api/rangefinder/).
+Demand of these features might not be detected by WebExtensions developers until I described them with actual examples.
+
+And [there are more and more required features for my addons.](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo)
+I have to do triage, plan, and request them as [new APIs](https://wiki.mozilla.org/WebExtensions/NewAPIs) not only for me but for other XUL/XPCOM addon developers.
+
+Thank you for reading.
