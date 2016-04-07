@@ -206,6 +206,7 @@ As above, I've successfully migrated my Popup ALT Attribute addon from XUL/XPCOM
 Here are reasons why I could do it:
 
  * It was a bootstrapped addon.
+   I already removed all XUL overlay and XBL.
  * Core implementation of the addon was similar to a simple user script (after e10s migration.)
    Essential actions of the addon were enclosed inside the content area, and no privilege was required to do that.
 
