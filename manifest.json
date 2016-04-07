@@ -15,9 +15,8 @@
   },
   "background": {
     "scripts": [
-      "scripts/log.js",
       "scripts/Configs.js",
-      "scripts/configs.js"
+      "scripts/common.js"
     ]
   },
   "content_scripts": [
@@ -27,9 +26,8 @@
         "<all_urls>"
       ],
       "js": [
-        "scripts/log.js",
         "scripts/Configs.js",
-        "scripts/configs.js",
+        "scripts/common.js",
         "scripts/content.js"
       ],
       "run_at": "document_start"
