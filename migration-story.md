@@ -211,7 +211,7 @@ However, it is a rare case for me.
 My other 40+ addons require some privilege, and/or they work outside the content area.
 
 For example, my another addon [Text Link](https://addons.mozilla.org/firefox/addon/text-link/) (which provides ability to open a URL text like a link via lazy double-click without carefully selecting, and ability to copy only URL texts extracted from the selection) requires some XPCOM components to detect URL-like text correctly.
-To migrate it to WebExtensions completely, something API to get selection string as rendered (for example, `<br>`s will produce virtual line break) and something like [RangeFinder](http://w3c.github.io/web-annotation/api/rangefinder/).
+To migrate it to WebExtensions completely, something API to get selection string as rendered (for example, `<br>`s will produce virtual line break. `Range.prototype.toSring()` does not refrect them.) and something like [RangeFinder](http://w3c.github.io/web-annotation/api/rangefinder/).
 Demand of these features might not be detected by WebExtensions developers until I described them with actual examples.
 
 And [there are more and more required features for my addons.](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo)
