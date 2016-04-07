@@ -215,6 +215,6 @@ To migrate it to WebExtensions completely, something API to get selection string
 Demand of these features might not be detected by WebExtensions developers until I described them with actual examples.
 
 And [there are more and more required features for my addons.](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo)
-I have to do triage, plan, and request them as [new APIs](https://wiki.mozilla.org/WebExtensions/NewAPIs) not only for me but for other XUL/XPCOM addon developers.
+I have to do triage, plan, and request them as [new APIs](https://wiki.mozilla.org/WebExtensions/NewAPIs) not only for me but for other XUL/XPCOM addon developers also.
 
 Thank you for reading.
