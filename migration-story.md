@@ -98,10 +98,11 @@ There were no localization and options UI:
       ]
     }
 
-At the previous step I separated the main script to [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) and [a loader for it.](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/modules/popupalt.js)
+At the previous step I separated the main script to [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) and [a loader for it](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/modules/popupalt.js).
 On the other hand, `manifest.json` can have some manifest keys to describe how scripts are loaded.
 It means that I don't need to put my custom loaders in the package anymore.
-Actually, a script for any web page can be loaded with the `content_scripts` rule in the above sample.
+Actually, a script for any webpage can be loaded with the `content_scripts` rule in the above sample.
+See [the spec of `content_scripts`](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/content_scripts) for more details.
 
 So finally only 3 files were left.
 Before:
@@ -121,11 +122,12 @@ And after:
     + [content_scripts]
         + content.js (moved and migrated from content-utils.js)
 
-[My frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) was designed to work in the content process, with special permissions to use XPCOM.
-The script touched to `nsIPrefBranch` and some XPCOM components via XPConnect, so they were temporarily commented out.
-User preferences were not available and only default configurations were there as fixed values.
-Moreover, some constant properties accessed like `Ci.nsIDOMNode.ELEMENT_NODE` had to be replaced as `Node.ELEMENT_NODE`.
-The listener for `mousemove` events from web pages was attached to the global namespace for a frame script, but it was re-attached to the `document` itself of an web page, because the script was now executed on web pages directly.
+And I still had to isolate [my frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) from XPCOM.
+
+ * The script touched to `nsIPrefBranch` and some XPCOM components via XPConnect, so they were temporarily commented out.
+ * User preferences were not available and only default configurations were there as fixed values.
+ * Some constant properties accessed like `Ci.nsIDOMNode.ELEMENT_NODE` had to be replaced as `Node.ELEMENT_NODE`.
+ * The listener for `mousemove` events from webpages was attached to the global namespace for a frame script, but it was re-attached to the `document` itself of each webpage, because the script was now executed on each webpage directly.
 
 
 ## Step 4: Localization
@@ -169,54 +171,76 @@ And, I had to update my `manifest.json` to embed localized messages:
 `__MSG_****__` in string values are automatically replaced to localized messages.
 You need to specify the default locale manually via the `default_locale` key.
 
-Note, Firefox 45 does not support the localization feature.
+Sadly Firefox 45 does not support the localization feature.
 You need to use Nightly 48.0a1 or newer to try localization.
 
 
 ## Step 5: User preferences
 
-Currently WebExtensions does not provide any feature compatible to `nsIPrefBranch`.
+Currently WebExtensions does not provide any feature completely compatible to `nsIPrefBranch`.
 Instead there are [simple storage APIs](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage).
 It can be used like an alternative of `nsIPrefBranch` to set/get user preferences.
+This addon had no configuration UI but had some secret preferences to control its advanced features, so I did it for future migrations of my other addons, as a trial.
 
-However there is a large limitation: *it is not available in content scripts.*
-I had to create a background script to access the storage, and communicate with it [via the inter-sandboxes messaging system](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/runtime).
+Then I encountered a large limitation: *the storage API is [not available in content scripts](https://bugzilla.mozilla.org/show_bug.cgi?id=1197346).*
+I had to create a background script just to access the storage, and communicate with it [via the inter-sandboxes messaging system](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/runtime).
 
 Finally, [I created a tiny library to do that](https://github.com/piroor/webextensions-lib-configs).
 I don't describe how I did it here, but if you hope to know details, please see [the source](https://github.com/piroor/webextensions-lib-configs/blob/master/Configs.js).
 There are just 177 lines.
+
+One left problem is: how to do something like the `about:config` or the [MCD](https://developer.mozilla.org/en-US/docs/MCD,_Mission_Control_Desktop_AKA_AutoConfig) - general methods to control secret preferences across addons.
+For my business clients, I ordinarily provide addons and use MCD to lock their configurations.
+(There are some common requirements on business use of Firefox, so combinations of addons and MCD are reasonable than creating private builds of Firefox with different configuration for each client.)
+I think I still have to research around this point.
 
 
 ## Step 6: Options UI
 
 WebExtensions provides [a feature to create options pages for addons](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/options_ui).
 It is also not supported on Firefox 45, so you need to use Nightly 48.0a1 for now.
+As previously I told, this addon didn't have its configuration UI, but I newly implemented it as a trial.
 
-In XUL/XPCOM addons rich XUL elements (`<checkbox>`, `<textbox>`, `<menulist>`, etc.) are available, but as I told, XUL is going to end.
+In XUL/XPCOM addons rich XUL elements - `<checkbox>`, `<textbox>`, `<menulist>`, and more - are available, but as I told, XUL is going to end.
 So I had to implement custom configuration UI based on pure HTML and JavaScript.
-On this step I created two libraries: [one is a helper to bind configurations to UI elements](https://github.com/piroor/webextensions-lib-options), and [another is a helper to apply localized messages to a static HTML](https://github.com/piroor/webextensions-lib-l10n).
+(If you need more rich UI elements, some known libraries for web applications will help you.)
+
+On this step I created two libraries:
+
+ * [A helper to bind configurations to UI elements](https://github.com/piroor/webextensions-lib-options).
+ * [A helper to apply localized messages to a static HTML](https://github.com/piroor/webextensions-lib-l10n).
 
 
 ## Conclusion
 
 As above, I've successfully migrated my Popup ALT Attribute addon from XUL/XPCOM to WebExtensions.
-(Now it is [just a branch](https://github.com/piroor/popupalt/tree/webextensions) but I'll release it after Firefox 48 is released.)
+Now it is [just a branch](https://github.com/piroor/popupalt/tree/webextensions) but I'll release it after Firefox 48 is released.
 
 Here are reasons why I could do it:
 
  * It was a bootstrapped addon.
-   I already removed all XUL overlay and XBL.
+   I already isolated the addon from all destructive changes.
  * Core implementation of the addon was similar to a simple user script (after e10s migration.)
    Essential actions of the addon were enclosed inside the content area, and no privilege was required to do that.
 
 However, it is a rare case for me.
 My other 40+ addons require some privilege, and/or they work outside the content area.
+For example:
 
-For example, my another addon [Text Link](https://addons.mozilla.org/firefox/addon/text-link/) (which provides ability to open a URL text like a link via lazy double-click without carefully selecting, and ability to copy only URL texts extracted from the selection) requires some XPCOM components to detect URL-like text correctly.
-To migrate it to WebExtensions completely, something API to get selection string as rendered (for example, `<br>`s will produce virtual line break. `Range.prototype.toSring()` does not refrect them.) and something like [RangeFinder](http://w3c.github.io/web-annotation/api/rangefinder/).
-Demand of these features might not be detected by WebExtensions developers until I described them with actual examples.
+ * [Open Bookmarks in New Tabs](https://addons.mozilla.org/firefox/addon/open-bookmarks-in-new-tab/) forces Firefox to open any bookmark in a new tab with simple left click.
+   To migrate it to WebExtensions, I need something API to control where a bookmark is opened in.
+   [New Tab from Location Bar](https://addons.mozilla.org/firefox/addon/new-tab-from-location-bar/) also requires similar API for the location bar.
+ * [Text Link](https://addons.mozilla.org/firefox/addon/text-link/) provides ability to open a URL text like a link via lazy double-click without carefully selecting, and ability to copy only URL texts extracted from the selection.
+   It requires some XPCOM components to detect URL-like text correctly.
+   To migrate it to WebExtensions completely, something API to get selection string as rendered (for example, `<br>`s will produce virtual line break. `Range.prototype.toSring()` does not refrect them.) and something like [RangeFinder](http://w3c.github.io/web-annotation/api/rangefinder/).
+ * [Tree Style Tabs](https://addons.mozilla.org/firefox/addon/tree-style-tab/) changes the orientation of Firefox's tab bar itself to provide vertical tab bar.
+   As the result it could be combined with other tab-related addons like [ColorfulTabs](https://addons.mozilla.org/firefox/addon/colorfultabs/).
+   Sadly I have no idea what API can do that yet...
+   (So possibly I need to give up some essential features of the addon.)
 
-And [there are more and more required features for my addons.](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo)
+Currently supplied WebExtensions are based on Google Chrome's spec, and they are designed just to implement some typical type extensions.
+On the other hand, we sometimes developed non-typical addons based on our imagination, because XUL-based addons can work like dynamic "patch" around running codes of Firefox.
+[Most of my cases are such non-typical addons](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo).
 I have to do triage, plan, and request them as [new APIs](https://wiki.mozilla.org/WebExtensions/NewAPIs) not only for me but for other XUL/XPCOM addon developers also.
 
 Thank you for reading.
