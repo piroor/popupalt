@@ -2,7 +2,7 @@
 
 Hello, addon developers. My name is [YUKI Hiroshi aka Piro](https://github.com/piroor/), a developer of Firefox addon.
 
-For long years I developed Firefox/Thunderbird addons [personally](https://addons.mozilla.org/ja/firefox/user/piro-piro_or/#my-submissions) and [on business](https://addons.mozilla.org/en-US/firefox/user/clearcode-inc/#my-submissions), based on XUL and XPCOM.
+For long years I developed Firefox/Thunderbird addons [personally](https://addons.mozilla.org/firefox/user/piro-piro_or/#my-submissions) and [on business](https://addons.mozilla.org/firefox/user/clearcode-inc/#my-submissions), based on XUL and XPCOM.
 By some reasons I didn't migrate my addons from such a legacy style to SDK-based, but recently I've started to research [what APIs are required to migrate my addons to WebExtensions](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo), because [Mozilla announced that XUL/XPCOM addons will be ended at the end of 2017](https://wiki.mozilla.org/Add-ons/developer/communication).
 And I realized that some addons are possibly migretable only with [currently available APIs](https://developer.mozilla.org/en-US/Add-ons/WebExtensions).
 The [Popup ALT Attribute](https://addons.mozilla.org/firefox/addon/popup-alt-attribute/) is one of such addons.
