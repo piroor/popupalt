@@ -1,9 +1,9 @@
 # Migration story of the Popup ALT Attribute from XUL/XPCOM to WebExtensions
 
-Hello, addon developers. I'm [YUKI Hiroshi aka Piro](https://github.com/piroor/), a developer of Firefox addon.
+Hello, addon developers. My name is [YUKI Hiroshi aka Piro](https://github.com/piroor/), a developer of Firefox addon.
 
 For long years I developed Firefox/Thunderbird addons [personally](https://addons.mozilla.org/ja/firefox/user/piro-piro_or/#my-submissions) and [on business](https://addons.mozilla.org/en-US/firefox/user/clearcode-inc/#my-submissions), based on XUL and XPCOM.
-By some reasons I didn't migrate my addons from such a legacy style to SDK-based, but recently I started to research [what APIs are required to migrate my addons to WebExtensions](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo), because [Mozilla announced that XUL/XPCOM addons will be ended at the end of 2017](https://wiki.mozilla.org/Add-ons/developer/communication).
+By some reasons I didn't migrate my addons from such a legacy style to SDK-based, but recently I've started to research [what APIs are required to migrate my addons to WebExtensions](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo), because [Mozilla announced that XUL/XPCOM addons will be ended at the end of 2017](https://wiki.mozilla.org/Add-ons/developer/communication).
 And I realized that some addons are possibly migretable only with [currently available APIs](https://developer.mozilla.org/en-US/Add-ons/WebExtensions).
 The [Popup ALT Attribute](https://addons.mozilla.org/firefox/addon/popup-alt-attribute/) is one of such addons.
 
@@ -24,18 +24,17 @@ For example:
       With the addon, a tooltip appears with a text "(a photo of a dog)"
       like ancient Netscape Navigator 4 or MSIE.
 
-Initially the addon was [implemented to replace an internal function `FillInHTMLTooltip()` defined by Firefox itself, with my custom version.](https://github.com/piroor/popupalt/blob/3615892354fe05f2cae6bab89708ee62854f36b8/content/popupalt/popupalt.xul)
+Initially the addon was [implemented to replace an internal function `FillInHTMLTooltip()` of Firefox itself, with my custom version.](https://github.com/piroor/popupalt/blob/3615892354fe05f2cae6bab89708ee62854f36b8/content/popupalt/popupalt.xul)
 
 
-## Step 1: Made dyanmically installable/uninstallable
+## Step 1: Isolation from destructive changes - made dyanmically installable/uninstallable
 
-At April 2011 I migrated it to [a bootstrapped extension, without any function replacement.](https://github.com/piroor/popupalt/blob/3615892354fe05f2cae6bab89708ee62854f36b8/content/popupalt/popupalt.xul)
+At April 2011 I migrated it to [a bootstrapped extension.](https://github.com/piroor/popupalt/blob/6cc2e980f7b7d275defb49848eb3ab82d8b905bf/modules/popupalt.js)
+Instead of replacing/redefining the internal function directly, it became to be triggered by the `popupshowing` DOM event, and canceled the event by `Event.prototype.stopPropagation()` to override Firefox's default behaviors.
+*Because the change is not destructive, it could be uninstalled safely.*
 
 I think it was the baseline of the migration for WebExtensions.
-If your addon is not bootstrapped yet, *I strongly recommend you to rewrite your addon only with dynamic changes by JavaScript codes, without XUL overlaying.*
-
-Anyway, in those days, the addon still hooked its custom operation to Firefox's internal operation flow to build a tooltip text from hover-ed HTML element, and canceled Firefox's original operation.
-That is a major way to do something on a XUL/XPCOM addon.
+Even if you don't migrate to bootsrapped, *I strongly recommend you to rewrite your addon only with such safer method, without any destructive changes - XUL overlaying, function replacement, and so on.*
 
 (In other words, if your addon is not migratable to bootstrapped, then you possibly have to wait that some new WebExtensions APIs are landed on Firefox itself. Sadly some my addons are here...)
 
