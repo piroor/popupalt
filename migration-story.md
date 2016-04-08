@@ -43,10 +43,10 @@ Even if you don't migrate to bootsrapped, *I strongly recommend you to rewrite y
 
 At Febrary 2016 I migrated it to ready for e10s.
 To be honest *it was the largest barrier on my case*.
-Through migration of Firefox itself for e10s, implementation to fill the tooltip was moved to [the lower layer written in C++](http://mxr.mozilla.org/mozilla-esr45/source/embedding/browser/nsDocShellTreeOwner.cpp#1050) and *I had to give up the old approach which overrides the behavior around content tooltip of Firefox itself*, because a bootstrapped extension written in JavaScript cannot access to such operations in the low layer.
+Through migration of Firefox itself for e10s, implementation to fill the tooltip was moved to [the lower layer written in C++](http://mxr.mozilla.org/mozilla-esr45/source/embedding/browser/nsDocShellTreeOwner.cpp#1050) and *I had to give up the old approach which overrides the partial operation to construct tooltip content*, because all operations to construct tooltip were completely enclosed in the low layer.
 
-Instead I noticed that Firefox always shows tooltip for an HTML element when it has own `title` attribute.
-So, I decided to copy the value of `alt` attribute to the `title` attribute for hover-ed HTML elements themselves, when any `mousemove` event is fired in web pages.
+Instead I noticed that Firefox always shows tooltip when an HTML element has its own `title` attribute.
+So, I decided to copy the value of `alt` attribute to the `title` attribute for hover-ed HTML elements themselves, when any `mousemove` event is fired in webpages.
 For example:
 
     Before:
@@ -55,14 +55,14 @@ For example:
     After:
     <img src="dog.jpg" alt="(a photo of a dog)" title="(a photo of a dog)">:
 
-As the result, most codes were successfully separated from the main script (which is executed in the chrome process) to [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) (executed in the content process), and [the main script became just a loader for the frame script.](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/modules/popupalt.js)
+As the result, most codes were successfully separated from the main script (executed in the chrome process) to [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) (executed in the content process), and [the main script became just a loader for the frame script.](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/modules/popupalt.js)
 
-Possibly you may not need to migrate your addon for e10s, because your addon will become e10s friendly after successful migration to WebExtensions.
-*But you still must isolate your codes from Firefox's internal functions.*
-We XUL/XPCOM-based addon authors know Firefox's internal implementation deeply, so sometimes we think like a developer of Firefox itself and try to implement an addon just like a "patch".
-However, in WebExtensions world we are not allowed to access low level internal implementations of Firefox itself.
-*Please forget your existing knowledge about inside of Firefox* - now you must think how to get what you want only via standard Web APIs and WebExtensions APIs.
-In other workds, you must change your mind from "how to inject my *operations* into the operations flow of Firefox itself?" to "how to reuse Firefox's known behavior and get *the result* what I really want, only with existing APIs?"
+You may not need to migrate your addon for e10s for now, because your addon will become e10s friendly after successful migration to WebExtensions.
+*But you still need to isolate your codes from Firefox's internal operation flow.*
+We XUL/XPCOM-based addon authors know Firefox's internal implementation deeply, so sometimes we think like a developer of Firefox and try to implement an addon just like a "patch".
+However, in WebExtensions world we are not allowed to access internal opeartions of Firefox itself.
+*Please forget your existing knowledge about inside of Firefox* - now you must think how to get what you want only via public APIs.
+In other workds, you must change your mind from "how to *inject my operations* into the operations flow of Firefox itself partially?" to "how to reuse Firefox's known behavior and get *the result* what I really want, only with public APIs?"
 
 (Yes, if your addon strongly depends on Firefox's internal functions, then you have to wait new standard Web APIs or Web Extensions APIs. Most of my addons are here.)
 
