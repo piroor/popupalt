@@ -201,7 +201,7 @@ WebExtensions provides [a feature to create options pages for addons](https://de
 It is also not supported on Firefox 45, so you need to use Nightly 48.0a1 for now.
 As previously I told, this addon didn't have its configuration UI, but I newly implemented it as a trial.
 
-In XUL/XPCOM addons rich XUL elements - `<checkbox>`, `<textbox>`, `<menulist>`, and more - are available, but as I told, XUL is going to end.
+In XUL/XPCOM addons rich UI elements - `<checkbox>`, `<textbox>`, `<menulist>`, and more - are available, but as I told, XUL is going to end.
 So I had to implement custom configuration UI based on pure HTML and JavaScript.
 (If you need more rich UI elements, some known libraries for web applications will help you.)
 
