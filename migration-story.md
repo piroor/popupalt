@@ -241,6 +241,6 @@ For example:
 Currently supplied WebExtensions are based on Google Chrome's spec, and they are designed just to implement some typical type extensions.
 On the other hand, we sometimes developed non-typical addons based on our imagination, because XUL-based addons can work like dynamic "patch" around running codes of Firefox.
 [Most of my cases are such non-typical addons](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo).
-I have to do triage, plan, and request them as [new APIs](https://wiki.mozilla.org/WebExtensions/NewAPIs) not only for me but for other XUL/XPCOM addon developers also.
+I have to do triage, plan, and request [new APIs](https://wiki.mozilla.org/WebExtensions/NewAPIs) not only for me but for other XUL/XPCOM addon developers also.
 
 Thank you for reading.
