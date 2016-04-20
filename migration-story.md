@@ -93,12 +93,14 @@ There were no localization and options UI:
       "content_scripts": [
         { "all_frames": true,
           "matches": ["<all_urls>"],
-          "js": ["content_scripts/content.js"],
+          "js": [
+            "content_scripts/content.js"
+          ],
           "run_at": "document_start" }
       ]
     }
 
-At the previous step I separated the main script to [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) and [a loader for it](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/modules/popupalt.js).
+Now the addon has [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) and [a loader for it](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/modules/popupalt.js).
 On the other hand, `manifest.json` can have some manifest keys to describe how scripts are loaded.
 It means that I don't need to put my custom loaders in the package anymore.
 Actually, a script for any webpage can be loaded with the `content_scripts` rule in the above sample.
@@ -188,6 +190,29 @@ I had to create a background script just to access the storage, and communicate 
 Finally, [I created a tiny library to do that](https://github.com/piroor/webextensions-lib-configs).
 I don't describe how I did it here, but if you hope to know details, please see [the source](https://github.com/piroor/webextensions-lib-configs/blob/master/Configs.js).
 There are just 177 lines.
+
+I had to update my `manifest.json` to use the library from both the background page and the content script, like:
+
+      "background": {
+        "scripts": [
+          "common/Configs.js", /* the library itself */
+          "common/common.js"   /* codes to use the library */
+        ]
+      },
+      "content_scripts": [
+        { "all_frames": true,
+          "matches": ["<all_urls>"],
+          "js": [
+            "common/Configs.js", /* the library itself */
+            "common/common.js",  /* codes to use the library */
+            "content_scripts/content.js"
+          ],
+          "run_at": "document_start" }
+      ]
+
+Scripts listed in a same section share a namespace for the section.
+I didn't have to write any code like `require()` to load a script from others.
+Instead I had to be careful about the listing order of scripts - put a script requiring a library after the library itself, in each list.
 
 One left problem is: how to do something like the `about:config` or the [MCD](https://developer.mozilla.org/en-US/docs/MCD,_Mission_Control_Desktop_AKA_AutoConfig) - general methods to control secret preferences across addons.
 For my business clients, I ordinarily provide addons and use MCD to lock their configurations.
