@@ -100,7 +100,7 @@ There were no localization and options UI:
       ]
     }
 
-Now the addon has [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) and [a loader for it](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/modules/popupalt.js).
+My addon had [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/content/content-utils.js) and [a loader for it](https://github.com/piroor/popupalt/blob/ec119f8b56fb5b9680030ab1f25f5ff3f170dfbe/modules/popupalt.js).
 On the other hand, `manifest.json` can have some manifest keys to describe how scripts are loaded.
 It means that I don't need to put my custom loaders in the package anymore.
 Actually, a script for any webpage can be loaded with the `content_scripts` rule in the above sample.
