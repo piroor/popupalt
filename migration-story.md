@@ -191,6 +191,8 @@ Finally, [I created a tiny library to do that](https://github.com/piroor/webexte
 I don't describe how I did it here, but if you hope to know details, please see [the source](https://github.com/piroor/webextensions-lib-configs/blob/master/Configs.js).
 There are just 177 lines.
 
+(Updated at 2016.4.26: [bug 1197346](https://bugzilla.mozilla.org/show_bug.cgi?id=1197346) has been fixed at Nightly 49.0a1 so you don't need any library to access the storage system from content scripts anymore. Now, my library just provides easy access for configuration values instead of the native storage API.)
+
 I had to update my `manifest.json` to use the library from both the background page and the content script, like:
 
       "background": {
