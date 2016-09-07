@@ -1,7 +1,7 @@
 # History
 
  - master/HEAD
- - 4.0.2016090701
+ - 4.0.0
    * Restructured on WebExtensions APIs.
    * Drop support for Firefox 47 and older.
  - 3.0.2016020501
