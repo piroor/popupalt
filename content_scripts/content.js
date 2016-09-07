@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 				let nodes = this.findParentNodesByAttr(aTarget, attr);
 				if (!nodes.length) continue;
 
-				for each (let node in nodes) {
+				for (let node of nodes) {
 					if (!node) continue;
 
 					let realAttrName = attr;
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 					return (aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
 				});
 
-				for each (let item in list)
+				for (let item of list)
 					tooltiptext.push(item.text);
 			}
 			return tooltiptext.length ? tooltiptext.join('\n') : null ;
