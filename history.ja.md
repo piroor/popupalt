@@ -1,6 +1,9 @@
 # 更新履歴
 
  - master/HEAD
+ - 4.0.2016090701
+   * WebExtensions APIベースで作り直した
+   * Firefox 47以前への対応を終了
  - 3.0.2016020501
    * Nightly 47.0a1に対応
    * Firefox 37以前への対応を終了

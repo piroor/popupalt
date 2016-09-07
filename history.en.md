@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 4.0.2016090701
+   * Restructured on WebExtensions APIs.
+   * Drop support for Firefox 47 and older.
  - 3.0.2016020501
    * Works on Nightly 47.0a1.
    * Drop support for Firefox 37 and older.
