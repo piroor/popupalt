@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 			var attrlist = this.attrlist.split(/[\|,\s]+/);
 			var recursive = configs.attrListRecursively;
 			var foundList = {};
-			for each (let attr in attrlist) {
+			for (let attr of attrlist) {
 				if (!attr) continue;
 
 				let nodes = this.findParentNodesByAttr(aTarget, attr);
