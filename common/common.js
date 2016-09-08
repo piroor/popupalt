@@ -10,9 +10,9 @@ function log(aMessage, ...aArgs)
 		return;
 
 	if (aArgs.length > 0)
-		console.log(aMessage, aArgs);
+		console.log('popupalt: ' + aMessage, aArgs);
 	else
-		console.log(aMessage);
+		console.log('popupalt: ' + aMessage);
 }
 
 var configs = new Configs({
