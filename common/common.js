@@ -4,11 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-var DEBUG = true;
-
 function log(aMessage, ...aArgs)
 {
-	if (!DEBUG)
+	if (!config.debug)
 		return;
 
 	if (aArgs.length > 0)
@@ -20,5 +18,6 @@ function log(aMessage, ...aArgs)
 var configs = new Configs({
 	attrListEnabled : false,
 	attrList : 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit',
-	attrListRecursively : false
+	attrListRecursively : false,
+	debug : false
 });

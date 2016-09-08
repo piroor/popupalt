@@ -9,5 +9,7 @@
   "config.attrList.label.after": { "message": "" },
   "config.attrList.tooltip": { "message": "属性名を \"|\" で区切って記述して下さい。" },
   "config.attrListRecursively.label": { "message": "祖先要素の属性値も表示する" },
-  "config.attrListRecursively.tooltip": { "message": "祖先要素まで遡って属性値を表示します。" }
+  "config.attrListRecursively.tooltip": { "message": "祖先要素まで遡って属性値を表示します。" },
+  "config.debug.label": { "message": "デバッグログを出力する" },
+  "config.debug.tooltip": { "message": "コンソール上にデバッグログを出力するようになります。" }
 }

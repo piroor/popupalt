@@ -9,5 +9,7 @@
   "config.attrList.tooltip": { "message": "Write name of attributes to be shown, delimited with \"|\"." },
   "config.attrList.label.after": { "message": "" },
   "config.attrListRecursively.label": { "message": "Show attributes of ancestores also" },
-  "config.attrListRecursively.tooltip": { "message": "If you check this, all ancestor nodes are also scanned." }
+  "config.attrListRecursively.tooltip": { "message": "If you check this, all ancestor nodes are also scanned." },
+  "config.debug.label": { "message": "Activate debug log" },
+  "config.debug.tooltip": { "message": "If you check this, debug logs will appear in the console." }
 }
