@@ -11,10 +11,7 @@ function log(aMessage, ...aArgs)
 	if (!configs || !configs.debug)
 		return;
 
-	if (aArgs.length > 0)
-		console.log('popupalt: ' + aMessage, aArgs);
-	else
-		console.log('popupalt: ' + aMessage);
+	console.log('popupalt: ' + aMessage, ...aArgs);
 }
 
 configs = new Configs({
