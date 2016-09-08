@@ -6,7 +6,7 @@
 
 function log(aMessage, ...aArgs)
 {
-	if (!config.debug)
+	if (!configs.debug)
 		return;
 
 	if (aArgs.length > 0)
