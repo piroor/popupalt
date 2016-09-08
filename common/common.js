@@ -4,9 +4,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
+var configs;
+
 function log(aMessage, ...aArgs)
 {
-	if (!configs.debug)
+	if (!configs || !configs.debug)
 		return;
 
 	if (aArgs.length > 0)
@@ -15,7 +17,7 @@ function log(aMessage, ...aArgs)
 		console.log('popupalt: ' + aMessage);
 }
 
-var configs = new Configs({
+configs = new Configs({
 	attrListEnabled : false,
 	attrList : 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit',
 	attrListRecursively : false,
