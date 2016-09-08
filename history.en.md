@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 4.0.1
    * Save changed configurations correctly.
    * Add ability to disable debug log by preferences.
  - 4.0.0
