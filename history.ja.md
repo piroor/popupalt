@@ -1,6 +1,7 @@
 # 更新履歴
 
  - master/HEAD
+   * 変更された設定を保存するようにした。
  - 4.0.0
    * WebExtensions APIベースで作り直した
    * Firefox 47以前への対応を終了
