@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 				return;
 
 			if (!aTarget.hasAttribute('data-popupalt-original-title'))
-				aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title'));
+				aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
 			aTarget.setAttribute('title', tooltiptext);
 		},
 
