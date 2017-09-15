@@ -108,6 +108,9 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 			if (!aTarget)
 				return;
 
+			if (!aTarget.hasAttribute('data-popupalt-original-title'))
+				aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
+
 			var tooltiptext = this.attrlist ?
 					this.constructTooltiptextFromAttributes(aTarget) :
 					this.constructTooltiptextForAlt(aTarget) ;
@@ -115,8 +118,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 			if (!tooltiptext || !tooltiptext.match(/\S/))
 				return;
 
-			if (!aTarget.hasAttribute('data-popupalt-original-title'))
-				aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
 			aTarget.setAttribute('title', tooltiptext);
 		},
 
