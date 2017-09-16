@@ -108,12 +108,14 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 			if (!aTarget)
 				return;
 
-			if (!aTarget.hasAttribute('data-popupalt-original-title'))
-				aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
+			if (this.attrlist) {
+				if (!aTarget.hasAttribute('data-popupalt-original-title'))
+					aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
 
-			var tooltiptext = this.attrlist ?
-					this.constructTooltiptextFromAttributes(aTarget) :
-					this.constructTooltiptextForAlt(aTarget) ;
+				var tooltiptext = this.constructTooltiptextFromAttributes(aTarget);
+			} else {
+				var tooltiptext = this.constructTooltiptextForAlt(aTarget);
+			}
 
 			if (!tooltiptext || !tooltiptext.match(/\S/))
 				return;
