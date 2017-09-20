@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
 				case 'unload':
 					document.removeEventListener('mousemove', PopupALT, true);
-					document.removeEventListener('unload', PopupALT);
+					window.removeEventListener('unload', PopupALT);
 					PopupALT = undefined;
 					return;
 			}
@@ -206,6 +206,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 		.then(function() {
 			log('configs loaded');
 			document.addEventListener('mousemove', PopupALT, true);
-			document.addEventListener('unload', PopupALT);
+			window.addEventListener('unload', PopupALT);
 		});
 });
