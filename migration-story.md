@@ -188,7 +188,7 @@ Then I encountered a large limitation: *the storage API is [not available in con
 I had to create a background script just to access the storage, and communicate with it [via the inter-sandboxes messaging system](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/runtime).
 
 Finally, [I created a tiny library to do that](https://github.com/piroor/webextensions-lib-configs).
-I don't describe how I did it here, but if you hope to know details, please see [the source](https://github.com/piroor/webextensions-lib-configs/blob/master/Configs.js).
+I don't describe how I did it here, but if you want to know details, please see [the source](https://github.com/piroor/webextensions-lib-configs/blob/master/Configs.js).
 There are just 177 lines.
 
 (Updated at 2016.4.26: [bug 1197346](https://bugzilla.mozilla.org/show_bug.cgi?id=1197346) has been fixed at Nightly 49.0a1 so you don't need any library to access the storage system from content scripts anymore. Now, my library just provides easy access for configuration values instead of the native storage API.)
