@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
   let delayedUpdate = null;
   const PopupALT = {
-    findParentNodeByAttr : function(aNode, aAttr) {
+    findParentNodeByAttr(aNode, aAttr) {
       if (!aNode) return null;
 
       return aNode.ownerDocument.evaluate(
@@ -49,8 +49,9 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         null
       ).singleNodeValue;
     },
-    findParentNodesByAttr : function(aNode, aAttr) {
-      if (!aNode) return [];
+    findParentNodesByAttr(aNode, aAttr) {
+      if (!aNode)
+        return [];
 
       const nodes = [];
       const result = aNode.ownerDocument.evaluate(
@@ -70,12 +71,11 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       return configs.attrListEnabled ? configs.attrList : null ;
     },
 
-    handleEvent : function(aEvent) {
+    handleEvent(aEvent) {
       const target = aEvent.target;
       const window = (target.ownerDocument || target).defaultView;
 
-      switch (aEvent.type)
-      {
+      switch (aEvent.type) {
         case 'mousemove':
           if (delayedUpdate)
             window.clearTimeout(delayedUpdate);
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       }
     },
 
-    updateTooltiptext : function(aTarget) {
+    updateTooltiptext(aTarget) {
       while (aTarget &&
              (aTarget.nodeType != Node.ELEMENT_NODE ||
               !aTarget.attributes.length))
@@ -118,11 +118,11 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       aTarget.setAttribute('title', tooltiptext);
     },
 
-    formatTooltipText : function(aString) {
+    formatTooltipText(aString) {
       return aString.replace(/[\r\t]/g, ' ').replace(/\n/g, '');
     },
 
-    constructTooltiptextForAlt : function(aTarget) {
+    constructTooltiptextForAlt(aTarget) {
       if (aTarget.ownerDocument.contentType.indexOf('image') == 0 ||
           !aTarget.alt ||
           aTarget.title)
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         this.formatTooltipText(String(aTarget.alt)) ;
     },
 
-    constructTooltiptextFromAttributes : function(aTarget) {
+    constructTooltiptextFromAttributes(aTarget) {
       const attrlist = this.attrlist.split(/[\|,\s]+/);
       const recursive = configs.attrListRecursively;
       const foundList = {};
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         let nodes = this.findParentNodesByAttr(aTarget, attr);
         if (!nodes.length) continue;
 
-        for (let node of nodes) {
+        for (const node of nodes) {
           if (!node) continue;
 
           let realAttrName = attr;
@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
       const tooltiptext = [];
       if (list.length) {
-        list.sort(function(aA, aB) {
+        list.sort((aA, aB) => {
           return (aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
         });
 
@@ -193,10 +193,10 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
   log('load configs');
   configs.$loaded
-    .catch(function(e) {
+    .catch(e => {
       log('error: ' + e);
     })
-    .then(function() {
+    .then(() => {
       log('configs loaded');
       document.addEventListener('mousemove', PopupALT, true);
       window.addEventListener('unload', PopupALT);
