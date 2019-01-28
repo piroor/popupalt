@@ -104,7 +104,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
     },
 
     async onHover(event) {
-try{
       let target = event.target;
       while (target &&
              target.nodeType != Node.ELEMENT_NODE) {
@@ -156,7 +155,6 @@ try{
         }
         this.imageCovers.set(target, coveringElements);
       }
-}catch(e){log('Error ', e);}
     },
     overrideTitle(element, title) {
       const originalTitle = element.getAttribute('title');
