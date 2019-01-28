@@ -38,25 +38,25 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
   let delayedUpdate = null;
   const PopupALT = {
-    findParentNodeByAttr(aNode, aAttr) {
-      if (!aNode) return null;
+    findParentNodeByAttr(node, attr) {
+      if (!node) return null;
 
-      return aNode.ownerDocument.evaluate(
-        'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")][1]',
-        aNode,
+      return node.ownerDocument.evaluate(
+        'ancestor-or-self::*[@'+attr+' and not(@'+attr+' = "")][1]',
+        node,
         null,
         XPathResult.FIRST_ORDERED_NODE_TYPE,
         null
       ).singleNodeValue;
     },
-    findParentNodesByAttr(aNode, aAttr) {
-      if (!aNode)
+    findParentNodesByAttr(node, attr) {
+      if (!node)
         return [];
 
       const nodes = [];
-      const result = aNode.ownerDocument.evaluate(
-        'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")]',
-        aNode,
+      const result = node.ownerDocument.evaluate(
+        'ancestor-or-self::*[@'+attr+' and not(@'+attr+' = "")]',
+        node,
         null,
         XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
         null
@@ -71,11 +71,11 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       return configs.attrListEnabled ? configs.attrList : null ;
     },
 
-    handleEvent(aEvent) {
-      const target = aEvent.target;
+    handleEvent(event) {
+      const target = event.target;
       const window = (target.ownerDocument || target).defaultView;
 
-      switch (aEvent.type) {
+      switch (event.type) {
         case 'mousemove':
           if (delayedUpdate)
             window.clearTimeout(delayedUpdate);
@@ -93,54 +93,54 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       }
     },
 
-    updateTooltiptext(aTarget) {
-      while (aTarget &&
-             (aTarget.nodeType != Node.ELEMENT_NODE ||
-              !aTarget.attributes.length))
-        aTarget = aTarget.parentNode;
+    updateTooltiptext(target) {
+      while (target &&
+             (target.nodeType != Node.ELEMENT_NODE ||
+              !target.attributes.length))
+        target = target.parentNode;
 
-      if (!aTarget)
+      if (!target)
         return;
 
       let tooltiptext;
       if (this.attrlist) {
-        if (!aTarget.hasAttribute('data-popupalt-original-title'))
-          aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
+        if (!target.hasAttribute('data-popupalt-original-title'))
+          target.setAttribute('data-popupalt-original-title', target.getAttribute('title') || '');
 
-        tooltiptext = this.constructTooltiptextFromAttributes(aTarget);
+        tooltiptext = this.constructTooltiptextFromAttributes(target);
       } else {
-        tooltiptext = this.constructTooltiptextForAlt(aTarget);
+        tooltiptext = this.constructTooltiptextForAlt(target);
       }
 
       if (!tooltiptext || !tooltiptext.match(/\S/))
         return;
 
-      aTarget.setAttribute('title', tooltiptext);
+      target.setAttribute('title', tooltiptext);
     },
 
-    formatTooltipText(aString) {
-      return aString.replace(/[\r\t]/g, ' ').replace(/\n/g, '');
+    formatTooltipText(string) {
+      return string.replace(/[\r\t]/g, ' ').replace(/\n/g, '');
     },
 
-    constructTooltiptextForAlt(aTarget) {
-      if (aTarget.ownerDocument.contentType.indexOf('image') == 0 ||
-          !aTarget.alt ||
-          aTarget.title)
+    constructTooltiptextForAlt(target) {
+      if (target.ownerDocument.contentType.indexOf('image') == 0 ||
+          !target.alt ||
+          target.title)
         return null;
 
-      return this.findParentNodeByAttr(aTarget, 'title') ?
+      return this.findParentNodeByAttr(target, 'title') ?
         null :
-        this.formatTooltipText(String(aTarget.alt)) ;
+        this.formatTooltipText(String(target.alt)) ;
     },
 
-    constructTooltiptextFromAttributes(aTarget) {
+    constructTooltiptextFromAttributes(target) {
       const attrlist = this.attrlist.split(/[\|,\s]+/);
       const recursive = configs.attrListRecursively;
       const foundList = {};
       for (let attr of attrlist) {
         if (!attr) continue;
 
-        let nodes = this.findParentNodesByAttr(aTarget, attr);
+        let nodes = this.findParentNodesByAttr(target, attr);
         if (!nodes.length) continue;
 
         for (const node of nodes) {
