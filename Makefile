@@ -6,7 +6,7 @@ all: xpi
 
 xpi: update_extlib install_extlib makexpi/makexpi.sh
 	rm -f ./*.xpi
-	zip -r -0 $(PACKAGE_NAME).xpi manifest.json _locales common content_scripts extlib options -x '*/.*' >/dev/null 2>/dev/null
+	zip -r -0 $(PACKAGE_NAME).xpi manifest.json _locales common content_scripts extlib options icons -x '*/.*' >/dev/null 2>/dev/null
 
 update_extlib:
 	git submodule update --init
