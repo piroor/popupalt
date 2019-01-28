@@ -4,19 +4,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-var configs;
-
-function log(aMessage, ...aArgs)
-{
-	if (!configs || !configs.debug)
-		return;
-
-	console.log('popupalt: ' + aMessage, ...aArgs);
-}
-
-configs = new Configs({
-	attrListEnabled : false,
-	attrList : 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit',
-	attrListRecursively : false,
-	debug : false
+const configs = new Configs({
+  attrListEnabled : false,
+  attrList : 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit',
+  attrListRecursively : false,
+  debug : false
 });
+
+function log(message, ...args)
+{
+  if (!configs || !configs.debug)
+    return;
+
+  console.log('popupalt: ' + message, ...args);
+}
