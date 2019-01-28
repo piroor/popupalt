@@ -11,8 +11,7 @@ const configs = new Configs({
   debug : false
 });
 
-function log(message, ...args)
-{
+function log(message, ...args) {
   if (!configs || !configs.debug)
     return;
 

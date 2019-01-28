@@ -4,4 +4,4 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-var options = new Options(configs);
+const options = new Options(configs);
