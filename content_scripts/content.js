@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
               if (node.matches(this.IMAGES_SELECTOR))
                 this.updateTooltiptext(node);
               else if (node.hasChildNodes())
-                this.updateTooltipOfAllImages(node);
+                this.updateTooltiptextOfAllImages(node);
             }
           }
           break;
@@ -149,8 +149,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       this.updateTooltiptext(target, { hover: true });
     },
 
-    updateTooltipOfAllImages(parent) {
-      log('updateTooltipOfAllImages ', parent);
+    updateTooltiptextOfAllImages(parent) {
+      log('updateTooltiptextOfAllImages ', parent);
       const images = parent.querySelectorAll(this.IMAGES_SELECTOR);
       log('  images: ', images);
       for (const image of images) {
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       log('configs loaded');
       document.addEventListener('mousemove', PopupALT, true);
       window.addEventListener('unload', PopupALT);
-      PopupALT.updateTooltipOfAllImages(document.documentElement);
+      PopupALT.updateTooltiptextOfAllImages(document.documentElement);
       PopupALT.startObserve();
     });
 });
