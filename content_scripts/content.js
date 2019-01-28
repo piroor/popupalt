@@ -36,8 +36,8 @@
 document.addEventListener('DOMContentLoaded', function onReady() {
 	document.removeEventListener('DOMContentLoaded', onReady);
 
-	var delayedUpdate = null;
-	var PopupALT = {
+	let delayedUpdate = null;
+	const PopupALT = {
 		findParentNodeByAttr : function(aNode, aAttr) {
 			if (!aNode) return null;
 
@@ -52,15 +52,15 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 		findParentNodesByAttr : function(aNode, aAttr) {
 			if (!aNode) return [];
 
-			var nodes = [];
-			var result = aNode.ownerDocument.evaluate(
+			const nodes = [];
+			const result = aNode.ownerDocument.evaluate(
 					'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")]',
 					aNode,
 					null,
 					XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 					null
 				);
-			for (var i = 0, maxi = result.snapshotLength; i < maxi; i++)
+			for (let i = 0, maxi = result.snapshotLength; i < maxi; i++)
 			{
 				nodes.push(result.snapshotItem(i));
 			}
@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 		},
 
 		handleEvent : function(aEvent) {
-			var target = aEvent.target;
-			var window = (target.ownerDocument || target).defaultView;
+			const target = aEvent.target;
+			const window = (target.ownerDocument || target).defaultView;
 
 			switch (aEvent.type)
 			{
@@ -108,13 +108,14 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 			if (!aTarget)
 				return;
 
+			let tooltiptext;
 			if (this.attrlist) {
 				if (!aTarget.hasAttribute('data-popupalt-original-title'))
 					aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
 
-				var tooltiptext = this.constructTooltiptextFromAttributes(aTarget);
+				tooltiptext = this.constructTooltiptextFromAttributes(aTarget);
 			} else {
-				var tooltiptext = this.constructTooltiptextForAlt(aTarget);
+				tooltiptext = this.constructTooltiptextForAlt(aTarget);
 			}
 
 			if (!tooltiptext || !tooltiptext.match(/\S/))
@@ -141,9 +142,9 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 		},
 
 		constructTooltiptextFromAttributes : function(aTarget) {
-			var attrlist = this.attrlist.split(/[\|,\s]+/);
-			var recursive = configs.attrListRecursively;
-			var foundList = {};
+			const attrlist = this.attrlist.split(/[\|,\s]+/);
+			const recursive = configs.attrListRecursively;
+			const foundList = {};
 			for (let attr of attrlist) {
 				if (!attr) continue;
 
@@ -170,8 +171,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 				}
 			}
 
-			var leaf;
-			var list = [];
+			let leaf;
+			const list = [];
 			for (let target in foundList) {
 				let leaf = ['< '+target+' >'];
 				let item = foundList[target];
@@ -185,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 				});
 			}
 
-			var tooltiptext = [];
+			const tooltiptext = [];
 			if (list.length) {
 				list.sort(function(aA, aB) {
 					return (aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
