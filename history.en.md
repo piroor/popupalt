@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 4.1.1
+   * Pack icon files to the package correctly.
  - 4.1.0
    * Support images covered with other transparent elements. (ex. Instagram)
  - 4.0.1
