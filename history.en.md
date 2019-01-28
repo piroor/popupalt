@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 4.1.0
+   * Support images covered with other transparent elements. (ex. Instagram)
  - 4.0.1
    * Save changed configurations correctly.
    * Add ability to disable debug log by preferences.
