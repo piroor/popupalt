@@ -79,8 +79,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
       switch (event.type) {
         case 'mousemove':
-          if (!this.attrlist)
-            return;
           if (delayedUpdate)
             window.clearTimeout(delayedUpdate);
           delayedUpdate = window.setTimeout((function() {
@@ -92,8 +90,10 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         case 'unload':
           document.removeEventListener('mousemove', PopupALT, true);
           window.removeEventListener('unload', PopupALT);
-          this.observer.disconnect();
-          this.observer = undefined;
+          if (this.observer) {
+            this.observer.disconnect();
+            this.observer = undefined;
+          }
           PopupALT = undefined;
           return;
       }
@@ -280,9 +280,12 @@ document.addEventListener('DOMContentLoaded', function onReady() {
     })
     .then(() => {
       log('configs loaded');
-      document.addEventListener('mousemove', PopupALT, true);
+      if (this.attrlist || !configs.supportCoveredImages)
+        document.addEventListener('mousemove', PopupALT, true);
       window.addEventListener('unload', PopupALT);
-      PopupALT.updateTooltiptextOfAllImages(document.documentElement);
-      PopupALT.startObserve();
+      if (configs.supportCoveredImages) {
+        PopupALT.updateTooltiptextOfAllImages(document.documentElement);
+        PopupALT.startObserve();
+      }
     });
 });

@@ -10,6 +10,7 @@
   "config.attrList.label.after": { "message": "" },
   "config.attrListRecursively.label": { "message": "Show attributes of ancestors also" },
   "config.attrListRecursively.tooltip": { "message": "If you check this, all ancestor nodes are also scanned." },
+  "config.supportCoveredImages.label": { "message": "Support images covered by transparent elements (ex. Instagram)" },
   "config.debug.label": { "message": "Activate debug log" },
   "config.debug.tooltip": { "message": "If you check this, debug logs will appear in the console." }
 }

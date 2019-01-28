@@ -8,6 +8,7 @@ const configs = new Configs({
   attrListEnabled : false,
   attrList : 'alt|src|data|title|href|cite|action|onclick|onmouseover|onsubmit',
   attrListRecursively : false,
+  supportCoveredImages: true,
   debug : false
 });
 
