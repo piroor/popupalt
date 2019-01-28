@@ -39,18 +39,26 @@ document.addEventListener('DOMContentLoaded', function onReady() {
   let delayedUpdate = null;
   const PopupALT = {
     IMAGES_SELECTOR: '*|img[alt]:not([alt=""])',
+    imageCovers: new WeakMap(),
 
-    findParentNodeByAttr(node, attr) {
-      if (!node) return null;
+    findParentNodeWithOwnTitle(node) {
+      if (!node)
+        return null;
 
       return node.ownerDocument.evaluate(
-        'ancestor-or-self::*[@'+attr+' and not(@'+attr+' = "")][1]',
+        `ancestor-or-self::*[
+           @title and
+           not(@title = "") and
+           (not(@data-popupalt-original-title) or
+            @title = @data-popupalt-original-title)
+         ][1]`,
         node,
         null,
         XPathResult.FIRST_ORDERED_NODE_TYPE,
         null
       ).singleNodeValue;
     },
+
     findParentNodesByAttr(node, attr) {
       if (!node)
         return [];
@@ -83,89 +91,100 @@ document.addEventListener('DOMContentLoaded', function onReady() {
             window.clearTimeout(delayedUpdate);
           delayedUpdate = window.setTimeout((function() {
             delayedUpdate = null;
-            this.onHover(target);
+            this.onHover(event);
           }).bind(this), 100);
           return;
 
         case 'unload':
           document.removeEventListener('mousemove', PopupALT, true);
           window.removeEventListener('unload', PopupALT);
-          if (this.observer) {
-            this.observer.disconnect();
-            this.observer = undefined;
-          }
           PopupALT = undefined;
           return;
       }
     },
 
-    startObserve() {
-      this.observer = new MutationObserver(mutations => {
-        for (const mutation of mutations) {
-          this.onMutated(mutation);
-        }
-      });
-      this.observer.observe(
-        document.body || document.documentElement,
-        { attributes: true,
-          attributeFilter: ['alt'],
-          childList: true,
-          subtree: true }
-      );
-    },
-
-    onMutated(mutation) {
-      log('mutation ', mutation);
-      switch (mutation.type) {
-        case 'attributes':
-          if (mutation.attributeName == 'alt' &&
-              mutation.target.matches(this.IMAGES_SELECTOR))
-            this.updateTooltiptext(mutation.target);
-          break;
-
-        case 'childList':
-          if (mutation.addedNodes.length > 0) {
-            for (const node of mutation.addedNodes) {
-              if (node.matches(this.IMAGES_SELECTOR))
-                this.updateTooltiptext(node);
-              else if (node.hasChildNodes())
-                this.updateTooltiptextOfAllImages(node);
-            }
-          }
-          break;
-      }
-    },
-
-    onHover(target) {
+    async onHover(event) {
+try{
+      let target = event.target;
       while (target &&
-             (target.nodeType != Node.ELEMENT_NODE ||
-              target.attributes.length == 0)) {
+             target.nodeType != Node.ELEMENT_NODE) {
         target = target.parentNode;
       }
 
       if (!target)
         return;
 
-      this.updateTooltiptext(target, { hover: true });
-    },
+      const coveringElements = new Set();
+      if (configs.supportCoveredImages) {
+        log('finding coveringElements');
+        while (true) {
+          const element = document.elementFromPoint(event.clientX, event.clientY);
+          log('  element: ', element);
+          if (!element ||
+              element == document.documentElement)
+            break;
+          if (element.matches(this.IMAGES_SELECTOR)) {
+            target = element;
+            break;
+          }
+          coveringElements.add(element);
+          element.style.pointerEvents = 'none';
+          //await new Promise(resolve => window.requestAnimationFrame(resolve));
+        }
+      }
 
-    updateTooltiptextOfAllImages(parent) {
-      log('updateTooltiptextOfAllImages ', parent);
-      const images = parent.querySelectorAll(this.IMAGES_SELECTOR);
-      log('  images: ', images);
-      for (const image of images) {
-        this.updateTooltiptext(image);
+      const tooltiptext = this.updateTooltiptext(target);
+
+      if (coveringElements.size > 0) {
+        let covers = this.imageCovers.get(target);
+        if (covers) {
+          for (const element of covers) {
+            this.clearTitle(element);
+          }
+        }
+        if (tooltiptext) {
+          for (const element of coveringElements) {
+            this.overrideTitle(element, tooltiptext);
+            element.style.pointerEvents = '';
+          }
+        }
+        else {
+          for (const element of coveringElements) {
+            this.clearTitle(element);
+            element.style.pointerEvents = '';
+          }
+        }
+        this.imageCovers.set(target, coveringElements);
+      }
+}catch(e){log('Error ', e);}
+    },
+    overrideTitle(element, title) {
+      const originalTitle = element.getAttribute('title');
+      if (!element.dataset.popupaltOriginalTitle && originalTitle != '')
+        element.dataset.popupaltOriginalTitle = originalTitle;
+      element.setAttribute('title', title);
+    },
+    clearTitle(element) {
+      if (element.dataset.popupaltOriginalTitle) {
+        element.setAttribute('title', element.dataset.popupaltOriginalTitle);
+        delete element.dataset.popupaltOriginalTitle;
+      }
+      else {
+        element.removeAttribute('title');
       }
     },
 
-    updateTooltiptext(target, options = {}) {
+    updateTooltiptext(target) {
       log('updateTooltiptext ', target);
 
       let tooltiptext;
       if (this.attrlist) {
-        if (!target.hasAttribute('data-popupalt-original-title'))
-          target.setAttribute('data-popupalt-original-title', target.getAttribute('title') || '');
-
+        while (target &&
+               target.attributes.length == 0) {
+          target = target.parentNode;
+        }
+        if (!target)
+          return null;
         tooltiptext = this.constructTooltiptextFromAttributes(target);
       } else {
         tooltiptext = this.constructTooltiptextForAlt(target);
@@ -173,31 +192,11 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       log('  tooltiptext: ', tooltiptext);
 
       if (!tooltiptext || !tooltiptext.match(/\S/))
-        return;
+        return null;
 
-      this.setTooltiptext(target, tooltiptext, options);
-    },
-
-    setTooltiptext(target, tooltiptext, options = {}) {
-      target.setAttribute('title', tooltiptext);
-
-      if (options.hover)
-        return;
-
-      const rect = target.getBoundingClientRect();
-      const x = rect.left + (rect.width / 2);
-      const y = rect.top + (rect.height / 2);
-      const targetFromPoint = document.elementFromPoint(x, y);
-      log('  targetFromPoint: ', target, rect, { x, y }, targetFromPoint);
-      if (targetFromPoint &&
-          targetFromPoint != target &&
-          !targetFromPoint.hasAttribute('title')) {
-        if (this.attrlist &&
-            !targetFromPoint.hasAttribute('data-popupalt-original-title'))
-          targetFromPoint.setAttribute('data-popupalt-original-title', targetFromPoint.getAttribute('title') || '');
-        targetFromPoint.setAttribute('title', tooltiptext);
-        log('  targetFromPoint => set ');
-      }
+      if (target.getAttribute('title') != tooltiptext)
+        this.overrideTitle(target, tooltiptext);
+      return tooltiptext;
     },
 
     formatTooltipText(string) {
@@ -207,10 +206,11 @@ document.addEventListener('DOMContentLoaded', function onReady() {
     constructTooltiptextForAlt(target) {
       if (target.ownerDocument.contentType.indexOf('image') == 0 ||
           !target.alt ||
-          target.title)
+          (target.title &&
+           target.title != target.alt)) {
         return null;
-
-      return this.findParentNodeByAttr(target, 'title') ?
+      }
+      return this.findParentNodeWithOwnTitle(target) ?
         null :
         this.formatTooltipText(String(target.alt)) ;
     },
@@ -280,12 +280,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
     })
     .then(() => {
       log('configs loaded');
-      if (this.attrlist || !configs.supportCoveredImages)
-        document.addEventListener('mousemove', PopupALT, true);
+      document.addEventListener('mousemove', PopupALT, true);
       window.addEventListener('unload', PopupALT);
-      if (configs.supportCoveredImages) {
-        PopupALT.updateTooltiptextOfAllImages(document.documentElement);
-        PopupALT.startObserve();
-      }
     });
 });
