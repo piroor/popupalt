@@ -14,7 +14,7 @@
  * The Original Code is the Popup ALT Attribute.
  *
  * The Initial Developer of the Original Code is YUKI "Piro" Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2002-2016
+ * Portions created by the Initial Developer are Copyright (C) 2002-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): YUKI "Piro" Hiroshi <piro.outsider.reflex@gmail.com>
