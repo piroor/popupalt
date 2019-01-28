@@ -173,10 +173,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         return;
 
       this.setTooltiptext(target, tooltiptext);
-
-      setTimeout(() => {
-        this.setTooltiptext(target, tooltiptext);
-      }, 250);
     },
 
     setTooltiptext(target, tooltiptext) {
