@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
             window.clearTimeout(delayedUpdate);
           delayedUpdate = window.setTimeout((function() {
             delayedUpdate = null;
-            this.updateTooltiptext(target);
+            this.onHover(target);
           }).bind(this), 100);
           return;
 
@@ -118,14 +118,14 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         case 'attributes':
           if (mutation.attributeName == 'alt' &&
               mutation.target.matches(this.IMAGES_SELECTOR))
-            this.updateTooltiptextInternal(mutation.target);
+            this.updateTooltiptext(mutation.target);
           break;
 
         case 'childList':
           if (mutation.addedNodes.length > 0) {
             for (const node of mutation.addedNodes) {
               if (node.matches(this.IMAGES_SELECTOR))
-                this.updateTooltiptextInternal(node);
+                this.updateTooltiptext(node);
               else if (node.hasChildNodes())
                 this.updateTooltipOfAllImages(node);
             }
@@ -139,24 +139,25 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       const images = parent.querySelectorAll(this.IMAGES_SELECTOR);
       log('  images: ', images);
       for (const image of images) {
-        this.updateTooltiptextInternal(image);
+        this.updateTooltiptext(image);
       }
     },
 
-    updateTooltiptext(target) {
+    onHover(target) {
       while (target &&
              (target.nodeType != Node.ELEMENT_NODE ||
-              target.attributes.length == 0))
+              target.attributes.length == 0)) {
         target = target.parentNode;
+      }
 
       if (!target)
         return;
 
-      this.updateTooltiptextInternal(target);
+      this.updateTooltiptext(target, { hover: true });
     },
 
-    updateTooltiptextInternal(target) {
-      log('updateTooltiptextInternal ', target);
+    updateTooltiptext(target, options = {}) {
+      log('updateTooltiptext ', target);
 
       let tooltiptext;
       if (this.attrlist) {
@@ -172,11 +173,14 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       if (!tooltiptext || !tooltiptext.match(/\S/))
         return;
 
-      this.setTooltiptext(target, tooltiptext);
+      this.setTooltiptext(target, tooltiptext, options);
     },
 
-    setTooltiptext(target, tooltiptext) {
+    setTooltiptext(target, tooltiptext, options = {}) {
       target.setAttribute('title', tooltiptext);
+
+      if (options.hover)
+        return;
 
       const rect = target.getBoundingClientRect();
       const x = rect.left + (rect.width / 2);
