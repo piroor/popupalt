@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
   let delayedUpdate = null;
   const PopupALT = {
+    IMAGES_SELECTOR: '*|img[alt]:not([alt=""])',
+
     findParentNodeByAttr(node, attr) {
       if (!node) return null;
 
@@ -88,19 +90,73 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         case 'unload':
           document.removeEventListener('mousemove', PopupALT, true);
           window.removeEventListener('unload', PopupALT);
+          this.observer.disconnect();
+          this.observer = undefined;
           PopupALT = undefined;
           return;
+      }
+    },
+
+    startObserve() {
+      this.observer = new MutationObserver(mutations => {
+        for (const mutation of mutations) {
+          this.onMutated(mutation);
+        }
+      });
+      this.observer.observe(
+        document.body || document.documentElement,
+        { attributes: true,
+          attributeFilter: ['alt'],
+          childList: true,
+          subtree: true }
+      );
+    },
+
+    onMutated(mutation) {
+      log('mutation ', mutation);
+      switch (mutation.type) {
+        case 'attributes':
+          if (mutation.attributeName == 'alt' &&
+              mutation.target.matches(this.IMAGES_SELECTOR))
+            this.updateTooltiptextInternal(mutation.target);
+          break;
+
+        case 'childList':
+          if (mutation.addedNodes.length > 0) {
+            for (const node of mutation.addedNodes) {
+              if (node.matches(this.IMAGES_SELECTOR))
+                this.updateTooltiptextInternal(node);
+              else if (node.hasChildNodes())
+                this.updateTooltipOfAllImages(node);
+            }
+          }
+          break;
+      }
+    },
+
+    updateTooltipOfAllImages(parent) {
+      log('updateTooltipOfAllImages ', parent);
+      const images = parent.querySelectorAll(this.IMAGES_SELECTOR);
+      log('  images: ', images);
+      for (const image of images) {
+        this.updateTooltiptextInternal(image);
       }
     },
 
     updateTooltiptext(target) {
       while (target &&
              (target.nodeType != Node.ELEMENT_NODE ||
-              !target.attributes.length))
+              target.attributes.length == 0))
         target = target.parentNode;
 
       if (!target)
         return;
+
+      this.updateTooltiptextInternal(target);
+    },
+
+    updateTooltiptextInternal(target) {
+      log('updateTooltiptextInternal ', target);
 
       let tooltiptext;
       if (this.attrlist) {
@@ -111,11 +167,35 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       } else {
         tooltiptext = this.constructTooltiptextForAlt(target);
       }
+      log('  tooltiptext: ', tooltiptext);
 
       if (!tooltiptext || !tooltiptext.match(/\S/))
         return;
 
+      this.setTooltiptext(target, tooltiptext);
+
+      setTimeout(() => {
+        this.setTooltiptext(target, tooltiptext);
+      }, 250);
+    },
+
+    setTooltiptext(target, tooltiptext) {
       target.setAttribute('title', tooltiptext);
+
+      const rect = target.getBoundingClientRect();
+      const x = rect.left + (rect.width / 2);
+      const y = rect.top + (rect.height / 2);
+      const targetFromPoint = document.elementFromPoint(x, y);
+      log('  targetFromPoint: ', target, rect, { x, y }, targetFromPoint);
+      if (targetFromPoint &&
+          targetFromPoint != target &&
+          !targetFromPoint.hasAttribute('title')) {
+        if (this.attrlist &&
+            !targetFromPoint.hasAttribute('data-popupalt-original-title'))
+          targetFromPoint.setAttribute('data-popupalt-original-title', targetFromPoint.getAttribute('title') || '');
+        targetFromPoint.setAttribute('title', tooltiptext);
+        log('  targetFromPoint => set ');
+      }
     },
 
     formatTooltipText(string) {
@@ -180,8 +260,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
       const tooltiptext = [];
       if (list.length) {
-        list.sort((aA, aB) => {
-          return (aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
+        list.sort((a, b) => {
+          return (a.node.compareDocumentPosition(b.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
         });
 
         for (let item of list)
@@ -200,5 +280,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       log('configs loaded');
       document.addEventListener('mousemove', PopupALT, true);
       window.addEventListener('unload', PopupALT);
+      PopupALT.updateTooltipOfAllImages(document.documentElement);
+      PopupALT.startObserve();
     });
 });
