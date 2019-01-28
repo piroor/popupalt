@@ -34,179 +34,171 @@
  * ***** END LICENSE BLOCK ***** */
 
 document.addEventListener('DOMContentLoaded', function onReady() {
-	document.removeEventListener('DOMContentLoaded', onReady);
+  document.removeEventListener('DOMContentLoaded', onReady);
 
-	let delayedUpdate = null;
-	const PopupALT = {
-		findParentNodeByAttr : function(aNode, aAttr) {
-			if (!aNode) return null;
+  let delayedUpdate = null;
+  const PopupALT = {
+    findParentNodeByAttr : function(aNode, aAttr) {
+      if (!aNode) return null;
 
-			return aNode.ownerDocument.evaluate(
-					'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")][1]',
-					aNode,
-					null,
-					XPathResult.FIRST_ORDERED_NODE_TYPE,
-					null
-				).singleNodeValue;
-		},
-		findParentNodesByAttr : function(aNode, aAttr) {
-			if (!aNode) return [];
+      return aNode.ownerDocument.evaluate(
+        'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")][1]',
+        aNode,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      ).singleNodeValue;
+    },
+    findParentNodesByAttr : function(aNode, aAttr) {
+      if (!aNode) return [];
 
-			const nodes = [];
-			const result = aNode.ownerDocument.evaluate(
-					'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")]',
-					aNode,
-					null,
-					XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-					null
-				);
-			for (let i = 0, maxi = result.snapshotLength; i < maxi; i++)
-			{
-				nodes.push(result.snapshotItem(i));
-			}
-			return nodes;
-		},
+      const nodes = [];
+      const result = aNode.ownerDocument.evaluate(
+        'ancestor-or-self::*[@'+aAttr+' and not(@'+aAttr+' = "")]',
+        aNode,
+        null,
+        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+        null
+      );
+      for (let i = 0, maxi = result.snapshotLength; i < maxi; i++) {
+        nodes.push(result.snapshotItem(i));
+      }
+      return nodes;
+    },
 
-		get attrlist() {
-			return configs.attrListEnabled ?
-				 configs.attrList : null ;
-		},
+    get attrlist() {
+      return configs.attrListEnabled ? configs.attrList : null ;
+    },
 
-		handleEvent : function(aEvent) {
-			const target = aEvent.target;
-			const window = (target.ownerDocument || target).defaultView;
+    handleEvent : function(aEvent) {
+      const target = aEvent.target;
+      const window = (target.ownerDocument || target).defaultView;
 
-			switch (aEvent.type)
-			{
-				case 'mousemove':
-					if (delayedUpdate)
-						window.clearTimeout(delayedUpdate);
-					delayedUpdate = window.setTimeout((function() {
-						delayedUpdate = null;
-						this.updateTooltiptext(target);
-					}).bind(this), 100);
-					return;
+      switch (aEvent.type)
+      {
+        case 'mousemove':
+          if (delayedUpdate)
+            window.clearTimeout(delayedUpdate);
+          delayedUpdate = window.setTimeout((function() {
+            delayedUpdate = null;
+            this.updateTooltiptext(target);
+          }).bind(this), 100);
+          return;
 
-				case 'unload':
-					document.removeEventListener('mousemove', PopupALT, true);
-					window.removeEventListener('unload', PopupALT);
-					PopupALT = undefined;
-					return;
-			}
-		},
+        case 'unload':
+          document.removeEventListener('mousemove', PopupALT, true);
+          window.removeEventListener('unload', PopupALT);
+          PopupALT = undefined;
+          return;
+      }
+    },
 
-		updateTooltiptext : function(aTarget) {
-			while (
-				aTarget &&
-				(
-					aTarget.nodeType != Node.ELEMENT_NODE ||
-					!aTarget.attributes.length
-				)
-				)
-				aTarget = aTarget.parentNode;
+    updateTooltiptext : function(aTarget) {
+      while (aTarget &&
+             (aTarget.nodeType != Node.ELEMENT_NODE ||
+              !aTarget.attributes.length))
+        aTarget = aTarget.parentNode;
 
-			if (!aTarget)
-				return;
+      if (!aTarget)
+        return;
 
-			let tooltiptext;
-			if (this.attrlist) {
-				if (!aTarget.hasAttribute('data-popupalt-original-title'))
-					aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
+      let tooltiptext;
+      if (this.attrlist) {
+        if (!aTarget.hasAttribute('data-popupalt-original-title'))
+          aTarget.setAttribute('data-popupalt-original-title', aTarget.getAttribute('title') || '');
 
-				tooltiptext = this.constructTooltiptextFromAttributes(aTarget);
-			} else {
-				tooltiptext = this.constructTooltiptextForAlt(aTarget);
-			}
+        tooltiptext = this.constructTooltiptextFromAttributes(aTarget);
+      } else {
+        tooltiptext = this.constructTooltiptextForAlt(aTarget);
+      }
 
-			if (!tooltiptext || !tooltiptext.match(/\S/))
-				return;
+      if (!tooltiptext || !tooltiptext.match(/\S/))
+        return;
 
-			aTarget.setAttribute('title', tooltiptext);
-		},
+      aTarget.setAttribute('title', tooltiptext);
+    },
 
-		formatTooltipText : function(aString) {
-			return aString.replace(/[\r\t]/g, ' ').replace(/\n/g, '');
-		},
+    formatTooltipText : function(aString) {
+      return aString.replace(/[\r\t]/g, ' ').replace(/\n/g, '');
+    },
 
-		constructTooltiptextForAlt : function(aTarget) {
-			if (
-				aTarget.ownerDocument.contentType.indexOf('image') == 0 ||
-				!aTarget.alt ||
-				aTarget.title
-				)
-				return null;
+    constructTooltiptextForAlt : function(aTarget) {
+      if (aTarget.ownerDocument.contentType.indexOf('image') == 0 ||
+          !aTarget.alt ||
+          aTarget.title)
+        return null;
 
-			return this.findParentNodeByAttr(aTarget, 'title') ?
-				null :
-				this.formatTooltipText(String(aTarget.alt)) ;
-		},
+      return this.findParentNodeByAttr(aTarget, 'title') ?
+        null :
+        this.formatTooltipText(String(aTarget.alt)) ;
+    },
 
-		constructTooltiptextFromAttributes : function(aTarget) {
-			const attrlist = this.attrlist.split(/[\|,\s]+/);
-			const recursive = configs.attrListRecursively;
-			const foundList = {};
-			for (let attr of attrlist) {
-				if (!attr) continue;
+    constructTooltiptextFromAttributes : function(aTarget) {
+      const attrlist = this.attrlist.split(/[\|,\s]+/);
+      const recursive = configs.attrListRecursively;
+      const foundList = {};
+      for (let attr of attrlist) {
+        if (!attr) continue;
 
-				let nodes = this.findParentNodesByAttr(aTarget, attr);
-				if (!nodes.length) continue;
+        let nodes = this.findParentNodesByAttr(aTarget, attr);
+        if (!nodes.length) continue;
 
-				for (let node of nodes) {
-					if (!node) continue;
+        for (let node of nodes) {
+          if (!node) continue;
 
-					let realAttrName = attr;
-					if (attr == 'title')
-						realAttrName = 'data-popupalt-original-title';
-					if (!node.getAttribute(realAttrName))
-						continue;
+          let realAttrName = attr;
+          if (attr == 'title')
+            realAttrName = 'data-popupalt-original-title';
+          if (!node.getAttribute(realAttrName))
+            continue;
 
-					if (!(node.nodeName in foundList))
-						foundList[node.nodeName] = {
-							_node : node
-						};
+          if (!(node.nodeName in foundList))
+            foundList[node.nodeName] = {
+              _node : node
+            };
 
-					foundList[node.nodeName][attr] = node.getAttribute(realAttrName);
+          foundList[node.nodeName][attr] = node.getAttribute(realAttrName);
 
-					if (!recursive) break;
-				}
-			}
+          if (!recursive) break;
+        }
+      }
 
-			let leaf;
-			const list = [];
-			for (let target in foundList) {
-				let leaf = ['< '+target+' >'];
-				let item = foundList[target];
-				for (let attr in item)
-					if (attr != '_node')
-						leaf.push('  '+attr+' : '+this.formatTooltipText(item[attr]));
+      let leaf;
+      const list = [];
+      for (const target in foundList) {
+        let leaf = ['< '+target+' >'];
+        let item = foundList[target];
+        for (let attr in item)
+          if (attr != '_node')
+            leaf.push('  '+attr+' : '+this.formatTooltipText(item[attr]));
 
-				list.push({
-					node : item._node,
-					text : leaf.join('\n')
-				});
-			}
+        list.push({
+          node : item._node,
+          text : leaf.join('\n')
+        });
+      }
 
-			const tooltiptext = [];
-			if (list.length) {
-				list.sort(function(aA, aB) {
-					return (aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
-				});
+      const tooltiptext = [];
+      if (list.length) {
+        list.sort(function(aA, aB) {
+          return (aA.node.compareDocumentPosition(aB.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
+        });
 
-				for (let item of list)
-					tooltiptext.push(item.text);
-			}
-			return tooltiptext.length ? tooltiptext.join('\n') : null ;
-		}
-	};
+        for (let item of list)
+          tooltiptext.push(item.text);
+      }
+      return tooltiptext.length ? tooltiptext.join('\n') : null ;
+    }
+  };
 
-	log('load configs');
-	configs.$loaded
-		.catch(function(e) {
-			log('error: ' + e);
-		})
-		.then(function() {
-			log('configs loaded');
-			document.addEventListener('mousemove', PopupALT, true);
-			window.addEventListener('unload', PopupALT);
-		});
+  log('load configs');
+  configs.$loaded
+    .catch(function(e) {
+      log('error: ' + e);
+    })
+    .then(function() {
+      log('configs loaded');
+      document.addEventListener('mousemove', PopupALT, true);
+      window.addEventListener('unload', PopupALT);
+    });
 });
