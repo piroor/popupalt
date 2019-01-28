@@ -79,6 +79,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
       switch (event.type) {
         case 'mousemove':
+          if (!this.attrlist)
+            return;
           if (delayedUpdate)
             window.clearTimeout(delayedUpdate);
           delayedUpdate = window.setTimeout((function() {
@@ -134,15 +136,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       }
     },
 
-    updateTooltipOfAllImages(parent) {
-      log('updateTooltipOfAllImages ', parent);
-      const images = parent.querySelectorAll(this.IMAGES_SELECTOR);
-      log('  images: ', images);
-      for (const image of images) {
-        this.updateTooltiptext(image);
-      }
-    },
-
     onHover(target) {
       while (target &&
              (target.nodeType != Node.ELEMENT_NODE ||
@@ -154,6 +147,15 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         return;
 
       this.updateTooltiptext(target, { hover: true });
+    },
+
+    updateTooltipOfAllImages(parent) {
+      log('updateTooltipOfAllImages ', parent);
+      const images = parent.querySelectorAll(this.IMAGES_SELECTOR);
+      log('  images: ', images);
+      for (const image of images) {
+        this.updateTooltiptext(image);
+      }
     },
 
     updateTooltiptext(target, options = {}) {
