@@ -146,6 +146,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       const originalTitle = element.getAttribute('title');
       if (!element.dataset.popupaltOriginalTitle && originalTitle != '')
         element.dataset.popupaltOriginalTitle = originalTitle;
+      // There is only one way to override tooltip of an element is: using its "title" attribute.
+      // See also: https://hg.mozilla.org/mozilla-central/file/bd9c3f3f61b1/toolkit/components/tooltiptext/TooltipTextProvider.js
       element.setAttribute('title', title);
     },
     clearTitle(element) {
