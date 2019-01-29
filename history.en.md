@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 4.2.1
+   * Better performance to find covering elements on images.
+   * Don't clear original title of elements even if there is no images with `alt` attribute.
  - 4.2.0
    * Support images covered with other transparent elements more aggressively.
  - 4.1.1
