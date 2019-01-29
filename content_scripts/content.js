@@ -116,19 +116,13 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       const coveringElements = new Set();
       if (configs.supportCoveredImages) {
         log('finding coveringElements');
-        while (true) {
-          const element = document.elementFromPoint(event.clientX, event.clientY);
+        for (const element of document.elementsFromPoint(event.clientX, event.clientY)) {
           log('  element: ', element);
-          if (!element ||
-              element == document.documentElement)
-            break;
           if (element.matches(this.IMAGES_SELECTOR)) {
             target = element;
             break;
           }
           coveringElements.add(element);
-          element.style.pointerEvents = 'none';
-          //await new Promise(resolve => window.requestAnimationFrame(resolve));
         }
       }
 
@@ -144,13 +138,11 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         if (tooltiptext) {
           for (const element of coveringElements) {
             this.overrideTitle(element, tooltiptext);
-            element.style.pointerEvents = '';
           }
         }
         else {
           for (const element of coveringElements) {
             this.clearTitle(element);
-            element.style.pointerEvents = '';
           }
         }
         this.imageCovers.set(target, coveringElements);
