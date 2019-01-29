@@ -128,22 +128,16 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
       const tooltiptext = this.updateTooltiptext(target);
 
-      if (coveringElements.size > 0) {
-        let covers = this.imageCovers.get(target);
-        if (covers) {
-          for (const element of covers) {
-            this.clearTitle(element);
-          }
+      if (this.imageCovers.has(target)) {
+        const covers = this.imageCovers.get(target);
+        for (const element of covers) {
+          this.clearTitle(element);
         }
-        if (tooltiptext) {
-          for (const element of coveringElements) {
-            this.overrideTitle(element, tooltiptext);
-          }
-        }
-        else {
-          for (const element of coveringElements) {
-            this.clearTitle(element);
-          }
+      }
+
+      if (coveringElements.size > 0 && tooltiptext) {
+        for (const element of coveringElements) {
+          this.overrideTitle(element, tooltiptext);
         }
         this.imageCovers.set(target, coveringElements);
       }
@@ -157,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
     clearTitle(element) {
       if (element.dataset.popupaltOriginalTitle) {
         element.setAttribute('title', element.dataset.popupaltOriginalTitle);
-        delete element.dataset.popupaltOriginalTitle;
       }
       else {
         element.removeAttribute('title');
