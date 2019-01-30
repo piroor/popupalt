@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 4.2.2
+   * The zh_CN locale is now available, translated by YFdyh000. Thanks!
  - 4.2.1
    * Better performance to find covering elements on images.
    * Don't clear original title of elements even if there is no images with `alt` attribute.
