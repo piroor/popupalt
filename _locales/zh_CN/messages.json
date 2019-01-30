@@ -1,0 +1,16 @@
+{
+  "name": { "message": "Popup ALT Attribute" },
+  "description": { "message": "以工具提示（Tooltip）形式弹出显示图像的替代文本（alt 属性），乃至显示其他属性。长描述自动多行显示。" },
+  "homepageURL": { "message": "http://piro.sakura.ne.jp/xul/_popupalt.html.en" },
+
+  "config.attrListEnabled.label": { "message": "显示更多属性" },
+  "config.attrListEnabled.tooltip": { "message": "如果选中，将在工具提示显示“alt”以及“title”属性以外的其他属性。" },
+  "config.attrList.label.before": { "message": "将列明的属性列表：" },
+  "config.attrList.label.after": { "message": "\u200b" },
+  "config.attrList.tooltip": { "message": "将要显示的属性列表，以竖线（|）符号分隔。" },
+  "config.attrListRecursively.label": { "message": "也显示祖先元素属性" },
+  "config.attrListRecursively.tooltip": { "message": "如果选中，还将扫描所有祖先节点。" },
+  "config.supportCoveredImages.label": { "message": "支持被透明元素覆盖的图像（例如 Instagram）" },
+  "config.debug.label": { "message": "激活调试日志" },
+  "config.debug.tooltip": { "message": "如果选中，将在控制台中输出调试日志。" }
+}
