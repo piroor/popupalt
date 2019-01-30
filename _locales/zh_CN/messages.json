@@ -1,7 +1,7 @@
 {
   "name": { "message": "Popup ALT Attribute" },
   "description": { "message": "以工具提示（Tooltip）形式弹出显示图像的替代文本（alt 属性），乃至显示其他属性。长描述自动多行显示。" },
-  "homepageURL": { "message": "http://piro.sakura.ne.jp/xul/_popupalt.html.en" },
+  "homepageURL": { "message": "https://piro.sakura.ne.jp/xul/_popupalt.html.en" },
 
   "config.attrListEnabled.label": { "message": "显示更多属性" },
   "config.attrListEnabled.tooltip": { "message": "如果选中，将在工具提示显示“alt”以及“title”属性以外的其他属性。" },
