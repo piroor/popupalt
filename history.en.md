@@ -1,7 +1,6 @@
 # History
 
  - master/HEAD
-   * Add ability to export and import all configurations except keyboard shortcuts. (Options => "Development" => "Debug mode" => "All Configs" => "Import/Export")
  - 4.2.2
    * The zh_CN locale is now available, translated by YFdyh000. Thanks!
  - 4.2.1
