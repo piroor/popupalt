@@ -1,15 +1,18 @@
 PACKAGE_NAME = popupalt
 
-.PHONY: all xpi signed clean update_extlib install_extlib
+.PHONY: all xpi signed clean init_extlib update_extlib install_extlib
 
 all: xpi
 
-xpi: update_extlib install_extlib makexpi/makexpi.sh
+xpi: init_extlib install_extlib makexpi/makexpi.sh
 	rm -f ./*.xpi
 	zip -r -9 $(PACKAGE_NAME).xpi manifest.json _locales common content_scripts extlib options icons -x '*/.*' >/dev/null 2>/dev/null
 
-update_extlib:
+init_extlib:
 	git submodule update --init
+
+update_extlib:
+	git submodule foreach 'git checkout trunk || git checkout main || git checkout master && git pull'
 
 makexpi/makexpi.sh:
 	git submodule update --init
