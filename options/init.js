@@ -5,3 +5,7 @@
 */
 
 const options = new Options(configs);
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.documentElement.classList.toggle('rtl', isRTL());
+}, { once: true });
