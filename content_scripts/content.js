@@ -3,14 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
+'use strict';
 
-document.addEventListener('DOMContentLoaded', function onReady() {
+document.addEventListener('DOMContentLoaded', async function onReady() {
   document.removeEventListener('DOMContentLoaded', onReady);
+
+  const { configs, log } = await import(browser.runtime.getURL('/common/common.js'));
 
   let delayedUpdate = null;
   const PopupALT = {
     IMAGES_SELECTOR: '*|img[alt]:not([alt=""])',
-    imageCovers: new WeakMap(),
+    imageCovers:     new WeakMap(),
 
     findParentNodeWithOwnTitle(node) {
       if (!node)
@@ -36,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
       const nodes = [];
       const result = node.ownerDocument.evaluate(
-        'ancestor-or-self::*[@'+attr+' and not(@'+attr+' = "")]',
+        'ancestor-or-self::*[@' + attr + ' and not(@' + attr + ' = "")]',
         node,
         null,
         XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
@@ -49,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
     },
 
     get attrlist() {
-      return configs.attrListEnabled ? configs.attrList : null ;
+      return configs.attrListEnabled ? configs.attrList : null;
     },
 
     handleEvent(event) {
@@ -69,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         case 'unload':
           document.removeEventListener('mousemove', PopupALT, true);
           window.removeEventListener('unload', PopupALT);
-          PopupALT = undefined;
           return;
       }
     },
@@ -142,7 +144,8 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         if (!target)
           return null;
         tooltiptext = this.constructTooltiptextFromAttributes(target);
-      } else {
+      }
+      else {
         tooltiptext = this.constructTooltiptextForAlt(target);
       }
       log('  tooltiptext: ', tooltiptext);
@@ -168,17 +171,17 @@ document.addEventListener('DOMContentLoaded', function onReady() {
       }
       return this.findParentNodeWithOwnTitle(target) ?
         null :
-        this.formatTooltipText(String(target.alt)) ;
+        this.formatTooltipText(String(target.alt));
     },
 
     constructTooltiptextFromAttributes(target) {
       const attrlist = this.attrlist.split(/[\|,\s]+/);
       const recursive = configs.attrListRecursively;
       const foundList = {};
-      for (let attr of attrlist) {
+      for (const attr of attrlist) {
         if (!attr) continue;
 
-        let nodes = this.findParentNodesByAttr(target, attr);
+        const nodes = this.findParentNodesByAttr(target, attr);
         if (!nodes.length) continue;
 
         for (const node of nodes) {
@@ -192,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function onReady() {
 
           if (!(node.nodeName in foundList))
             foundList[node.nodeName] = {
-              _node : node
+              $node: node
             };
 
           foundList[node.nodeName][attr] = node.getAttribute(realAttrName);
@@ -201,31 +204,30 @@ document.addEventListener('DOMContentLoaded', function onReady() {
         }
       }
 
-      let leaf;
       const list = [];
       for (const target in foundList) {
-        let leaf = ['< '+target+' >'];
-        let item = foundList[target];
-        for (let attr in item)
-          if (attr != '_node')
-            leaf.push('  '+attr+' : '+this.formatTooltipText(item[attr]));
+        const leaf = ['< ' + target + ' >'];
+        const item = foundList[target];
+        for (const attr in item)
+          if (attr != '$node')
+            leaf.push('  ' + attr + ' : ' + this.formatTooltipText(item[attr]));
 
         list.push({
-          node : item._node,
-          text : leaf.join('\n')
+          node: item.$node,
+          text: leaf.join('\n')
         });
       }
 
       const tooltiptext = [];
       if (list.length) {
         list.sort((a, b) => {
-          return (a.node.compareDocumentPosition(b.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1 ;
+          return (a.node.compareDocumentPosition(b.node) & Node.DOCUMENT_POSITION_FOLLOWING) ? 1 : -1;
         });
 
-        for (let item of list)
+        for (const item of list)
           tooltiptext.push(item.text);
       }
-      return tooltiptext.length ? tooltiptext.join('\n') : null ;
+      return tooltiptext.length ? tooltiptext.join('\n') : null;
     }
   };
 

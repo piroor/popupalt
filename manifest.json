@@ -14,10 +14,7 @@
     }
   },
   "background": {
-    "scripts": [
-      "extlib/Configs.js",
-      "common/common.js"
-    ]
+    "page": "background/background.html"
   },
   "content_scripts": [
     {
@@ -26,8 +23,6 @@
         "<all_urls>"
       ],
       "js": [
-        "extlib/Configs.js",
-        "common/common.js",
         "content_scripts/content.js"
       ],
       "run_at": "document_start"
@@ -39,5 +34,10 @@
   },
   "permissions": [
     "storage"
+  ],
+  "web_accessible_resources": [
+    "extlib/Configs.js",
+    "common/common.js",
+    "content_scripts/content.js"
   ]
 }
