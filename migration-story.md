@@ -4,7 +4,7 @@ Hello, addon developers. My name is [YUKI Hiroshi aka Piro](https://github.com/p
 
 For long years I developed Firefox/Thunderbird addons [personally](https://addons.mozilla.org/firefox/user/piro-piro_or/#my-submissions) and [on business](https://addons.mozilla.org/firefox/user/clearcode-inc/#my-submissions), based on XUL and XPCOM.
 By some reasons I didn't migrate my addons from such a legacy style to SDK-based, but recently I've started to research [what APIs are required to migrate my addons to WebExtensions](https://docs.google.com/spreadsheets/d/1gn8fFl4iseOqLEz_UIEbHCEZ7R01VW2eDlxJaFRNKEo), because [Mozilla announced that XUL/XPCOM addons will be ended at the end of 2017](https://wiki.mozilla.org/Add-ons/developer/communication).
-And I realized that some addons are possibly migretable only with [currently available APIs](https://developer.mozilla.org/en-US/Add-ons/WebExtensions).
+And I realized that some addons are possibly migretable only with [currently available APIs](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions).
 The [Popup ALT Attribute](https://addons.mozilla.org/firefox/addon/popup-alt-attribute/) is one of such addons.
 
 Recently [I've successfully done it](https://github.com/piroor/popupalt/tree/webextensions), so let's describe how I did that.
@@ -69,7 +69,7 @@ In other workds, you must change your mind from "how to *inject my operations* i
 
 ## Step 3: Re-format in the WebExtensions style
 
-I read [the tutorial to build a new simple WebExtensions-based addon from scratch](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Your_first_WebExtension) before migration.
+I read [the tutorial to build a new simple WebExtensions-based addon from scratch](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension) before migration.
 And I realized that bootstrapped extensions are similar to WebExtensions addons:
 
  * They are dynamically installed and uninstalled.
@@ -104,7 +104,7 @@ My addon had [a frame script](https://github.com/piroor/popupalt/blob/ec119f8b56
 On the other hand, `manifest.json` can have some manifest keys to describe how scripts are loaded.
 It means that I don't need to put my custom loaders in the package anymore.
 Actually, a script for any webpage can be loaded with the `content_scripts` rule in the above sample.
-See [the spec of `content_scripts`](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/content_scripts) for more details.
+See [the spec of `content_scripts`](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts) for more details.
 
 So finally only 3 files were left.
 Before:
@@ -136,7 +136,7 @@ And I still had to isolate [my frame script](https://github.com/piroor/popupalt/
 
 For the old `install.rdf` I put localized description.
 In WebExtensions addons I had to do it in different way.
-See [how to localize messages](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Internationalization) for details.
+See [how to localize messages](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Internationalization) for details.
 In short I did followings.
 
 Added files to define localized descriptions:
@@ -180,12 +180,12 @@ You need to use Nightly 48.0a1 or newer to try localization.
 ## Step 5: User preferences
 
 Currently WebExtensions does not provide any feature completely compatible to `nsIPrefBranch`.
-Instead there are [simple storage APIs](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage).
+Instead there are [simple storage APIs](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage).
 It can be used like an alternative of `nsIPrefBranch` to set/get user preferences.
 This addon had no configuration UI but had some secret preferences to control its advanced features, so I did it for future migrations of my other addons, as a trial.
 
 Then I encountered a large limitation: *the storage API is [not available in content scripts](https://bugzilla.mozilla.org/show_bug.cgi?id=1197346).*
-I had to create a background script just to access the storage, and communicate with it [via the inter-sandboxes messaging system](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/runtime).
+I had to create a background script just to access the storage, and communicate with it [via the inter-sandboxes messaging system](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime).
 
 Finally, [I created a tiny library to do that](https://github.com/piroor/webextensions-lib-configs).
 I don't describe how I did it here, but if you want to know details, please see [the source](https://github.com/piroor/webextensions-lib-configs/blob/master/Configs.js).
@@ -224,7 +224,7 @@ I think I still have to research around this point.
 
 ## Step 6: Options UI
 
-WebExtensions provides [a feature to create options pages for addons](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/options_ui).
+WebExtensions provides [a feature to create options pages for addons](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/options_ui).
 It is also not supported on Firefox 45, so you need to use Nightly 48.0a1 for now.
 As previously I told, this addon didn't have its configuration UI, but I newly implemented it as a trial.
 
