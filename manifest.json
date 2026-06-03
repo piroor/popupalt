@@ -7,12 +7,6 @@
     "32": "icons/icon.png"
   },
   "default_locale": "en_US",
-  "applications": {
-    "gecko": {
-      "id": "{61FD08D8-A2CB-46c0-B36D-3F531AC53C12}",
-      "strict_min_version": "60.0"
-    }
-  },
   "background": {
     "page": "background/background.html"
   },
@@ -39,5 +33,17 @@
     "extlib/Configs.js",
     "common/common.js",
     "content_scripts/content.js"
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{61FD08D8-A2CB-46c0-B36D-3F531AC53C12}", 
+      "strict_min_version": "60.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "120.0"
+    }
+  }
 }

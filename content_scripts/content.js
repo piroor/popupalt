@@ -228,6 +228,148 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
           tooltiptext.push(item.text);
       }
       return tooltiptext.length ? tooltiptext.join('\n') : null;
+    },
+
+    // --- Mobile (touch) support: native "title" tooltips are not shown on
+    // Firefox for Android, so we render our own popup element. ---
+
+    getAltText(node) {
+      // Read-only text extraction, reusing existing logic without
+      // mutating the "title" attribute (no overrideTitle side effect).
+      while (node && node.nodeType != Node.ELEMENT_NODE)
+        node = node.parentNode;
+      if (!node)
+        return null;
+      return this.attrlist ?
+        this.constructTooltiptextFromAttributes(node) :
+        this.constructTooltiptextForAlt(node);
+    },
+
+    popupElement: null,
+    popupTextElement: null,
+    popupLinkElement: null,
+    touchActive: false,
+
+    ensurePopup() {
+      if (this.popupElement && this.popupElement.isConnected)
+        return this.popupElement;
+
+      const popup = document.createElement('div');
+      // Inline styles to stay independent from the page stylesheet.
+      popup.style.cssText = [
+        'position: fixed',
+        'z-index: 2147483647',
+        'box-sizing: border-box',
+        'max-width: 80vw',
+        'padding: 8px 10px',
+        'border-radius: 6px',
+        'background: rgba(0,0,0,0.88)',
+        'color: #fff',
+        'font: 14px/1.4 sans-serif',
+        'pointer-events: auto',
+        'box-shadow: 0 2px 8px rgba(0,0,0,0.4)',
+        'display: none'
+      ].join(';');
+
+      const text = document.createElement('div');
+      text.style.cssText = 'white-space: pre-wrap;';
+
+      // Tappable link shown below the ALT text when the image is inside <a>.
+      // Long-press on it triggers the native Android context menu.
+      const link = document.createElement('a');
+      link.style.cssText = [
+        'display: block',
+        'margin-top: 6px',
+        'color: #7ec8f7',
+        'font-size: 12px',
+        'word-break: break-all',
+        'text-decoration: underline'
+      ].join(';');
+      // Tap hides the popup so the native navigation can proceed cleanly.
+      link.addEventListener('click', () => this.hidePopup());
+
+      popup.appendChild(text);
+      popup.appendChild(link);
+      (document.body || document.documentElement).appendChild(popup);
+
+      this.popupElement = popup;
+      this.popupTextElement = text;
+      this.popupLinkElement = link;
+      return popup;
+    },
+
+    showPopup(target, text, x, y) {
+      this.ensurePopup();
+      this.popupTextElement.textContent = text;
+
+      // Show the link element only when the image is inside an <a href>.
+      const anchor = target.closest ? target.closest('a[href]') : null;
+      if (anchor) {
+        this.popupLinkElement.href = anchor.href;
+        this.popupLinkElement.textContent = anchor.href;
+        this.popupLinkElement.style.display = 'block';
+      }
+      else {
+        this.popupLinkElement.style.display = 'none';
+      }
+
+      // Position at the bottom of the viewport so the native context menu
+      // (which appears in the middle/top) does not cover our popup.
+      this.popupElement.style.display = 'block';
+      const rect = this.popupElement.getBoundingClientRect();
+      let left = x - rect.width / 2;
+      left = Math.max(4, Math.min(left, window.innerWidth - rect.width - 4));
+      this.popupElement.style.left = left + 'px';
+      this.popupElement.style.top = (window.innerHeight - rect.height - 12) + 'px';
+    },
+
+    hidePopup() {
+      if (this.popupElement)
+        this.popupElement.style.display = 'none';
+    },
+
+    isPopupOpen() {
+      return !!this.popupElement && this.popupElement.style.display != 'none';
+    },
+
+    handleTouchEvent(event) {
+      switch (event.type) {
+        case 'touchstart':
+          // Dismiss an open popup when tapping outside of it.
+          if (this.isPopupOpen() && !this.popupElement.contains(event.target))
+            this.hidePopup();
+          // Flag the gesture as touch so onContextMenu acts on it.
+          this.touchActive = true;
+          return;
+
+        case 'touchend':
+        case 'touchcancel':
+          // Cleared after the long-press contextmenu has already fired.
+          this.touchActive = false;
+          return;
+      }
+    },
+
+    onContextMenu(event) {
+      // Only act on touch-originated long-press, never on desktop right-click.
+      if (!this.touchActive)
+        return;
+      let target = null;
+      for (const element of document.elementsFromPoint(event.clientX, event.clientY)) {
+        if (element.matches(this.IMAGES_SELECTOR)) {
+          target = element;
+          break;
+        }
+      }
+      if (!target)
+        return;
+      const text = this.getAltText(target);
+      if (!text || !text.match(/\S/))
+        return;
+      // Show our ALT popup alongside the native context menu.
+      // Note: preventDefault() is not honored by Firefox Android from content
+      // scripts, so we let the native menu appear naturally.
+      this.showPopup(target, text, event.clientX, event.clientY);
     }
   };
 
@@ -240,5 +382,12 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
       log('configs loaded');
       document.addEventListener('mousemove', PopupALT, true);
       window.addEventListener('unload', PopupALT);
+      // Touch handlers for mobile (Firefox for Android).
+      const touchHandler = PopupALT.handleTouchEvent.bind(PopupALT);
+      document.addEventListener('touchstart', touchHandler, { capture: true, passive: true });
+      document.addEventListener('touchend', touchHandler, true);
+      document.addEventListener('touchcancel', touchHandler, true);
+      // Non-passive so preventDefault() can suppress the native menu on links.
+      document.addEventListener('contextmenu', PopupALT.onContextMenu.bind(PopupALT), { capture: true, passive: false });
     });
 });
