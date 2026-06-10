@@ -1,6 +1,9 @@
 # 更新履歴
 
  - master/HEAD
+ - 4.3.0
+   * Firefox Androidに対応（[by ulukyn](https://github.com/piroor/popupalt/pull/16), thanks!）
+   * RTLの言語の環境での設定画面の表示を改善
  - 4.2.2
    * zh_CNロケールを追加（YFdyh000氏による翻訳。多謝！）
  - 4.2.1

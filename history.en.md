@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 4.3.0
+   * Supports Firefox Android ([by ulukyn](https://github.com/piroor/popupalt/pull/16), thanks!)
+   * Better support around the options page on RTL language environments.
  - 4.2.2
    * The zh_CN locale is now available, translated by YFdyh000. Thanks!
  - 4.2.1
