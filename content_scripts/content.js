@@ -245,10 +245,10 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
         this.constructTooltiptextForAlt(node);
     },
 
-    popupElement: null,
+    popupElement:     null,
     popupTextElement: null,
     popupLinkElement: null,
-    touchActive: false,
+    touchActive:      false,
 
     ensurePopup() {
       if (this.popupElement && this.popupElement.isConnected)
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
       return popup;
     },
 
-    showPopup(target, text, x, y) {
+    showPopup(target, text, x, _y) {
       this.ensurePopup();
       this.popupTextElement.textContent = text;
 
