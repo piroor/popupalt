@@ -19,7 +19,7 @@ format: install_dependency
 
 xpi: init_extlib install_extlib makexpi/makexpi.sh
 	rm -f ./*.xpi
-	zip -r -9 $(PACKAGE_NAME).xpi manifest.json _locales common content_scripts extlib options icons -x '*/.*' >/dev/null 2>/dev/null
+	zip -r -9 $(PACKAGE_NAME).xpi manifest.json _locales background common content_scripts extlib options icons -x '*/.*' >/dev/null 2>/dev/null
 
 init_extlib:
 	git submodule update --init
