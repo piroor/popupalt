@@ -188,8 +188,9 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
           if (!node) continue;
 
           let realAttrName = attr;
-          if (attr == 'title')
-            realAttrName = 'data-popupalt-original-title';
+          let originalTitleAttrName = 'data-popupalt-original-title'
+          if (attr == 'title' && node.getAttribute(originalTitleAttrName))
+            realAttrName = originalTitleAttrName;
           if (!node.getAttribute(realAttrName))
             continue;
 
