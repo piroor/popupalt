@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
     imageCovers:     new WeakMap(),
 
     findParentNodeWithOwnTitle(node) {
-      if (!node)
+      if (!node || !node.ownerDocument)
         return null;
 
       return node.ownerDocument.evaluate(
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
     },
 
     findParentNodesByAttr(node, attr) {
-      if (!node)
+      if (!node || !node.ownerDocument)
         return [];
 
       const nodes = [];
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
 
       let tooltiptext;
       if (this.attrlist) {
-        while (target &&
+        while (target && target.attributes &&
                target.attributes.length == 0) {
           target = target.parentNode;
         }
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
     },
 
     constructTooltiptextForAlt(target) {
-      if (target.ownerDocument.contentType.indexOf('image') == 0 ||
+      if ((target.ownerDocument && target.ownerDocument.contentType.indexOf('image') == 0) ||
           !target.alt ||
           (target.title &&
            target.title != target.alt)) {
