@@ -163,7 +163,9 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
     },
 
     constructTooltiptextForAlt(target) {
-      if ((target?.ownerDocument?.contentType.indexOf('image') == 0) ||
+      if (!target ||
+          (target.ownerDocument?.contentType &&
+           target.ownerDocument.contentType.startsWith('image')) ||
           !target.alt ||
           (target.title &&
            target.title != target.alt)) {
