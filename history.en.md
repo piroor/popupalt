@@ -2,7 +2,7 @@
 
  - master/HEAD
  - 4.3.1
-   * Show raw `title` value in the tooltip correctly even if it is the first timem, on the enhanced mode showing multiple attributes ([by erik434](https://github.com/piroor/popupalt/pull/17), thanks!)
+   * Show raw `title` value in the tooltip correctly even if it is the first time, on the enhanced mode showing multiple attributes ([by erik434](https://github.com/piroor/popupalt/pull/17), thanks!)
    * Prevent possible message storm around sync and reset of configs.
  - 4.3.0
    * Supports Firefox Android ([by ulukyn](https://github.com/piroor/popupalt/pull/16), thanks!)
