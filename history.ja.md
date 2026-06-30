@@ -1,6 +1,9 @@
 # 更新履歴
 
  - master/HEAD
+ - 4.3.1
+   * 複数の属性の値を表示する拡張モードにおいて、初回表示時に元々の`title`属性の値が表示されない問題を修正（[by erik434](https://github.com/piroor/popupalt/pull/17), thanks!）
+   * 設定の同期およびリセット時にメッセージ処理の無限ループが発生する可能性があったのを修正
  - 4.3.0
    * Firefox Androidに対応（[by ulukyn](https://github.com/piroor/popupalt/pull/16), thanks!）
    * RTLの言語の環境での設定画面の表示を改善
