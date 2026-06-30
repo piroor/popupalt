@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', async function onReady() {
     touchActive:      false,
 
     ensurePopup() {
-      if (this.popupElement && this.popupElement.isConnected)
+      if (this.popupElement?.isConnected)
         return this.popupElement;
 
       const popup = document.createElement('div');
