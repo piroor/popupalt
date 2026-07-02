@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 4.3.2
+   * Behave as settings correctly after they are back to their default values. (regression on 4.3.1)
  - 4.3.1
    * Show raw `title` value in the tooltip correctly even if it is the first time, on the enhanced mode showing multiple attributes ([by erik434](https://github.com/piroor/popupalt/pull/17), thanks!)
    * Prevent possible message storm around sync and reset of configs.
